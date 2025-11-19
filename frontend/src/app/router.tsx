@@ -3,28 +3,18 @@ import { BrowserRouter, Routes, Route } from "react-router-dom";
 import { paths } from "@/config/paths";
 import LandingPage from "@/app/routes/landing";
 import DashboardPage from "@/app/routes/app/dashboard";
-
-
+import NotFoundPage from "@/app/routes/not-found";
 
 const AppRouter: React.FC = () => {
-    return (
-        <BrowserRouter>
-            <Routes>
-                <Route 
-                    path={paths.landing.home.path}
-                    element={
-                        <LandingPage />
-                    }
-                />
-                <Route 
-                    path={paths.app.dashboard.path}
-                    element={
-                        <DashboardPage />
-                    }
-                />
-            </Routes>
-        </BrowserRouter>
-    )
-}
+  return (
+    <BrowserRouter>
+      <Routes>
+        <Route path={paths.landing.home.path} element={<LandingPage />} />
+        <Route path={paths.app.dashboard.path} element={<DashboardPage />} />
+        <Route path="*" element={<NotFoundPage />} />
+      </Routes>
+    </BrowserRouter>
+  );
+};
 
 export default AppRouter;
