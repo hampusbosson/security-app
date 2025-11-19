@@ -10,12 +10,16 @@ import RepositoriesPage from "./routes/app/repositories";
 import FindingsPage from "./routes/app/findings";
 import PullRequestsPage from "./routes/app/pull-requests";
 import TrendsPage from "./routes/app/trends";
+import SignupPage from "./routes/auth/signup";
 
 const AppRouter: React.FC = () => {
   return (
     <BrowserRouter>
       <Routes>
         <Route path={paths.landing.home.path} element={<LandingPage />} />
+
+        <Route path={paths.auth.signup.path} element={<SignupPage />} />
+
         <Route path={paths.app.dashboard.path} element={<DashboardLayout />}>
           <Route index element={<DashboardPage />} />
           <Route path={paths.app.repositories.path} element={<RepositoriesPage />} />

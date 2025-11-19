@@ -2,37 +2,48 @@ export const paths = {
   // landing page routes
   landing: {
     home: {
-        path: "/",
-        getHref: () => "/",
+      path: "/",
+      getHref: () => "/",
     },
   },
 
-  // App (protected) routes
+  // Authentication routes (public)
+  auth: {
+    signup: {
+      path: "/signup",
+      getHref: () => "/signup",
+    },
+    login: {
+      path: "/login",
+      getHref: () => "/login",
+    },
+  },
+
+  // App routes (protected)
   app: {
     dashboard: {
       path: "dashboard",
-      getHref: () => "/dashboard"
+      getHref: () => "/dashboard",
     },
     repositories: {
       path: "repositories",
-      getHref: () => "/dashboard/repositories"
+      getHref: () => "/dashboard/repositories",
     },
     findings: {
       path: "findings",
-      getHref: () => "/dashboard/findings"
+      getHref: () => "/dashboard/findings",
     },
     pullRequests: {
       path: "pull-requests",
-      getHref: () => "/dashboard/pull-requests"
+      getHref: () => "/dashboard/pull-requests",
     },
     trends: {
       path: "trends",
-      getHref: () => "/dashboard/trends"
+      getHref: () => "/dashboard/trends",
     },
     settings: {
       path: "settings",
-      getHref: () => "/dashboard/settings"
+      getHref: () => "/dashboard/settings",
     },
-
-  }
+  },
 } as const;

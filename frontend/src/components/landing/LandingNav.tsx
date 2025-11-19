@@ -9,6 +9,10 @@ export const LandingNav = () => {
     navigate("/dashboard");
   };
 
+  const handleSignup = () => {
+    navigate("/signup");
+  }
+
   return (
     <nav className="fixed top-0 left-0 right-0 z-50 glass-strong border-b border-border/50">
       <div className="container mx-auto px-6 py-4">
@@ -54,7 +58,7 @@ export const LandingNav = () => {
             <Button variant="ghost" className="text-sm" onClick={handleLogin}>
               Sign In
             </Button>
-            <Button className="bg-primary hover:bg-primary/90 text-primary-foreground glow-primary">
+            <Button className="bg-primary hover:bg-primary/90 text-primary-foreground glow-primary" onClick={handleSignup}>
               Start Free
             </Button>
           </div>
