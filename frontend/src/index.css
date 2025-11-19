@@ -143,7 +143,7 @@
 }
 
 /* ------------------------------------------------------ */
-/* UTILITIES (Tailwind v4 @utility syntax)                */
+/* CORE UTILITIES (glass / glow / gradients)              */
 /* ------------------------------------------------------ */
 @utility glass {
   background: hsl(var(--glass-bg));
@@ -190,4 +190,99 @@
     hsl(170 100% 50% / 0.1),
     transparent 50%
   );
+}
+
+/* ------------------------------------------------------ */
+/* SECTION SEPARATORS / VISUAL DIVIDERS                   */
+/* ------------------------------------------------------ */
+
+/* These are the class utilities you use in JSX */
+@utility section-divider {
+  position: relative;
+}
+
+@utility section-glow-top {
+  background: radial-gradient(
+    ellipse 80% 50% at 50% 0%,
+    hsl(170 100% 50% / 0.12),
+    transparent 60%
+  );
+}
+
+@utility section-glow-center {
+  background: radial-gradient(
+    ellipse 70% 50% at 50% 50%,
+    hsl(200 100% 50% / 0.10),
+    transparent 60%
+  );
+}
+
+@utility section-glow-bottom {
+  background: radial-gradient(
+    ellipse 80% 50% at 50% 100%,
+    hsl(170 100% 50% / 0.12),
+    transparent 60%
+  );
+}
+
+@utility section-grid {
+  background-image:
+    linear-gradient(hsl(170 100% 50% / 0.05) 1px, transparent 1px),
+    linear-gradient(90deg, hsl(170 100% 50% / 0.05) 1px, transparent 1px);
+  background-size: 50px 50px;
+}
+
+@utility section-noise {
+  position: relative;
+}
+
+@utility gradient-border-top {
+  border-top: 1px solid;
+  border-image: linear-gradient(
+    90deg,
+    transparent,
+    hsl(170 100% 50% / 0.25),
+    hsl(200 100% 50% / 0.25),
+    transparent
+  ) 1;
+}
+
+@utility gradient-border-bottom {
+  border-bottom: 1px solid;
+  border-image: linear-gradient(
+    90deg,
+    transparent,
+    hsl(170 100% 50% / 0.25),
+    hsl(200 100% 50% / 0.25),
+    transparent
+  ) 1;
+}
+
+/* Pseudo-elements for section utilities must be defined as normal CSS */
+@layer base {
+  .section-divider::before {
+    content: "";
+    position: absolute;
+    top: 0;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 60%;
+    height: 1px;
+    background: linear-gradient(
+      90deg,
+      transparent,
+      hsl(170 100% 50% / 0.3),
+      hsl(200 100% 50% / 0.3),
+      transparent
+    );
+    box-shadow: 0 0 20px hsl(170 100% 50% / 0.2);
+  }
+
+  .section-noise::after {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' /%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)' opacity='0.06'/%3E%3C/svg%3E");
+    pointer-events: none;
+  }
 }
