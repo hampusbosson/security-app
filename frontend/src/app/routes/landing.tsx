@@ -9,7 +9,7 @@ import { Pricing } from "@/components/landing/Pricing";
 import { CTASection } from "@/components/landing/CTASection";
 import { Footer } from "@/components/landing/Footer";
 
-const Index = () => {
+const LandingPage = () => {
   return (
     <div className="min-h-screen bg-background">
       <LandingNav />
@@ -26,4 +26,4 @@ const Index = () => {
   );
 };
 
-export default Index;
+export default LandingPage;
