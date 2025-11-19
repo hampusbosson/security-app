@@ -4,7 +4,7 @@ import { FindingsTable } from "@/components/dashboard/FindingsTable";
 import { ScanActivityPanel } from "@/components/dashboard/ScanActivityPanel";
 import { VulnerabilityChart } from "@/components/VulnerabilityChart";
 
-const Dashboard = () => {
+const DashboardPage = () => {
   return (
     <div className="space-y-6">
       {/* Security Score Hero Card */}
@@ -85,4 +85,4 @@ const Dashboard = () => {
   );
 };
 
-export default Dashboard;
+export default DashboardPage;
