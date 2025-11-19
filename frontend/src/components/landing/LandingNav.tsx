@@ -1,7 +1,14 @@
 import { Shield } from "lucide-react";
 import { Button } from "@/components/ui/button";
+import { useNavigate } from "react-router-dom";
 
 export const LandingNav = () => {
+  const navigate = useNavigate();
+
+  const handleLogin = () => {
+    navigate("/dashboard");
+  };
+
   return (
     <nav className="fixed top-0 left-0 right-0 z-50 glass-strong border-b border-border/50">
       <div className="container mx-auto px-6 py-4">
@@ -16,23 +23,35 @@ export const LandingNav = () => {
 
           {/* Navigation Links */}
           <div className="hidden md:flex items-center gap-6">
-            <a href="#features" className="text-sm text-muted-foreground hover:text-primary transition-colors">
+            <a
+              href="#features"
+              className="text-sm text-muted-foreground hover:text-primary transition-colors"
+            >
               Features
             </a>
-            <a href="#pricing" className="text-sm text-muted-foreground hover:text-primary transition-colors">
+            <a
+              href="#pricing"
+              className="text-sm text-muted-foreground hover:text-primary transition-colors"
+            >
               Pricing
             </a>
-            <a href="#docs" className="text-sm text-muted-foreground hover:text-primary transition-colors">
+            <a
+              href="#docs"
+              className="text-sm text-muted-foreground hover:text-primary transition-colors"
+            >
               Docs
             </a>
-            <a href="#demo" className="text-sm text-muted-foreground hover:text-primary transition-colors">
+            <a
+              href="#demo"
+              className="text-sm text-muted-foreground hover:text-primary transition-colors"
+            >
               Demo
             </a>
           </div>
 
           {/* CTA */}
           <div className="flex items-center gap-3">
-            <Button variant="ghost" className="text-sm">
+            <Button variant="ghost" className="text-sm" onClick={handleLogin}>
               Sign In
             </Button>
             <Button className="bg-primary hover:bg-primary/90 text-primary-foreground glow-primary">
