@@ -5,6 +5,11 @@ import LandingPage from "@/app/routes/landing";
 import DashboardPage from "@/app/routes/app/dashboard";
 import NotFoundPage from "@/app/routes/not-found";
 import { DashboardLayout } from "@/layouts/DashboardLayout";
+import DashboardSettingsPage from "@/app/routes/app/settings";
+import RepositoriesPage from "./routes/app/repositories";
+import FindingsPage from "./routes/app/findings";
+import PullRequestsPage from "./routes/app/pull-requests";
+import TrendsPage from "./routes/app/trends";
 
 const AppRouter: React.FC = () => {
   return (
@@ -13,6 +18,11 @@ const AppRouter: React.FC = () => {
         <Route path={paths.landing.home.path} element={<LandingPage />} />
         <Route path={paths.app.dashboard.path} element={<DashboardLayout />}>
           <Route index element={<DashboardPage />} />
+          <Route path={paths.app.repositories.path} element={<RepositoriesPage />} />
+          <Route path={paths.app.findings.path} element={<FindingsPage />} />
+          <Route path={paths.app.pullRequests.path} element={<PullRequestsPage />} />
+          <Route path={paths.app.trends.path} element={<TrendsPage />} />
+          <Route path={paths.app.settings.path} element={<DashboardSettingsPage />} />
         </Route>
         <Route path="*" element={<NotFoundPage />} />
       </Routes>
