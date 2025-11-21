@@ -1,6 +1,7 @@
 import type { Request, Response } from "express";
 import axios from "axios";
 import jwt from "jsonwebtoken";
+import { prisma } from "../lib/prisma";
 
 const loginUser = (_req: Request, res: Response) => {
   const params = new URLSearchParams({
@@ -62,31 +63,42 @@ const authorizeUser = async (req: Request, res: Response) => {
     const primaryEmail =
       emailRes.data.find((e: any) => e.primary)?.email || null;
 
-    // 4) Create session token
+    // 4) Save user to DB
+    let dbUser = await prisma.user.upsert({
+      where: { githubId: githubUser.id },
+      update: {
+        username: githubUser.login,
+        email: primaryEmail,
+        avatarUrl: githubUser.avatar_url,
+      },
+      create: {
+        githubId: githubUser.id,
+        username: githubUser.login,
+        email: primaryEmail,
+        avatarUrl: githubUser.avatar_url,
+      },
+    });
+
+    // 5) Create session token
     const appToken = jwt.sign(
       {
-        id: githubUser.id,
-        username: githubUser.login,
-        avatar: githubUser.avatar_url,
-        email: primaryEmail,
-        githubAccessToken: accessToken, // optionally store
+        userId: dbUser.id,
+        username: dbUser.username,
+        avatar: dbUser.avatarUrl,
       },
       process.env.JWT_SECRET!,
       { expiresIn: "7d" }
     );
 
-    //TODO: Save user to DB
-    
-
     // 5) Redirect user to frontend with JWT
     return res.redirect(
       `${process.env.FRONTEND_URL}/dashboard?token=${appToken}`
     );
+
   } catch (error) {
     console.error("Error during Oauth callback:", error);
     res.status(500).send("Internal Server Error");
   }
 };
-
 
 export { loginUser, authorizeUser };
