@@ -76,6 +76,7 @@ const authorizeUser = async (req: Request, res: Response) => {
     );
 
     //TODO: Save user to DB
+    
 
     // 5) Redirect user to frontend with JWT
     return res.redirect(

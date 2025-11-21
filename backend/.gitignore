@@ -4,3 +4,5 @@ private-key.pem
 /src/generated/prisma
 
 /src/generated/prisma
+
+/prisma/generated/prisma
