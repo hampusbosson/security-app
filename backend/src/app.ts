@@ -5,7 +5,8 @@ import dotenv from "dotenv";
 import cors from "cors";
 
 //import "./config/passport";
-//import authRoutes from "./routes/auth.routes";
+import authRoutes from "./routes/authRoutes"
+import githubRoutes from "./routes/githubRoutes";
 
 dotenv.config();
 
@@ -19,19 +20,19 @@ app.use(
   })
 );
 
-/*
+
 app.use(session({
   secret: process.env.SESSION_SECRET!,
   resave: false,
   saveUninitialized: false,
 }));
 
-*/
 
 app.use(passport.initialize());
 app.use(passport.session());
 
-//app.use("/auth", authRoutes);
+app.use("/api/auth", authRoutes);
+app.use("/api/github", githubRoutes);
 
 app.get("/", (_, res) => {
   res.send("Backend is running.");
