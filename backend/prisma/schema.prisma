@@ -1,0 +1,70 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+// Looking for ways to speed up your queries, or scale easily with your serverless or edge functions?
+// Try Prisma Accelerate: https://pris.ly/cli/accelerate-init
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+}
+
+model User {
+  id             Int             @id @default(autoincrement())
+  githubId       Int             @unique
+  username       String
+  email          String?
+  avatarUrl      String?
+  accessToken    String?
+  createdAt      DateTime        @default(now())
+  updatedAt      DateTime        @updatedAt
+
+  installations  Installation[]
+}
+
+model Installation {
+  id             Int          @id @default(autoincrement())
+  installationId Int          @unique
+  accountLogin   String
+  accountType    String
+
+  user           User         @relation(fields: [userId], references: [id])
+  userId         Int
+
+  repositories   Repository[]  // <— added reverse relation
+
+  createdAt      DateTime     @default(now())
+  updatedAt      DateTime     @updatedAt
+}
+
+model Repository {
+  id             Int          @id @default(autoincrement())
+  repoId         Int          @unique
+  name           String
+  fullName       String
+  private        Boolean
+
+  installation   Installation  @relation(fields: [installationId], references: [id])
+  installationId Int
+
+  findings       Finding[]     // <— added reverse relation
+
+  createdAt      DateTime     @default(now())
+  updatedAt      DateTime     @updatedAt
+}
+
+model Finding {
+  id             Int          @id @default(autoincrement())
+  repositoryId   Int
+  rule           String
+  severity       String
+  description    String
+  filePath       String
+  lineNumber     Int?
+  createdAt      DateTime     @default(now())
+
+  repository     Repository    @relation(fields: [repositoryId], references: [id])
+}
