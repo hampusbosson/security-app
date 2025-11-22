@@ -1,11 +1,10 @@
 import express from "express";
-import { installRedirect, installationCallback } from "../controllers/githubControllers";
+import { handleInstallation, syncUserRepositories } from "../controllers/githubControllers";
+import { authenticateToken } from "../middleware/authenticateToken";
 
 const router = express.Router();
 
-// send user to GitHub App installation page
-router.get("/install", installRedirect);
-// GitHub redirects back here after installation
-router.get("/callback", installationCallback);
+router.get("/install", authenticateToken, handleInstallation);
+router.get("/sync-repos", authenticateToken, syncUserRepositories);
 
 export default router;
