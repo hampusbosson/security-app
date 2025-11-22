@@ -2,8 +2,13 @@ import { Bell, Play } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Badge } from "@/components/ui/badge";
+import { useAuth } from "@/hooks/useAuth";
 
 export const TopBar = () => {
+  const { user } = useAuth();
+
+  const githubAvatarUrl = user?.avatarUrl || undefined;
+
   return (
     <header className="sticky top-0 z-30 glass-strong border-b border-border/50">
       <div className="flex items-center justify-between px-6 py-3">
@@ -28,7 +33,7 @@ export const TopBar = () => {
           </Button>
 
           <Avatar className="w-8 h-8 border-2 border-primary/20 cursor-pointer hover:border-primary/50 transition-colors">
-            <AvatarImage src="https://github.com/shadcn.png" />
+            <AvatarImage src={githubAvatarUrl} />
             <AvatarFallback>SC</AvatarFallback>
           </Avatar>
         </div>
