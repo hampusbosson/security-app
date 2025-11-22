@@ -1,6 +1,6 @@
 export interface User {
   userId: number;          // from  JWT payload (dbUser.id)
   username: string;
-  avatar: string | null;
+  avatarUrl: string | null;
   email: string | null;
 }
