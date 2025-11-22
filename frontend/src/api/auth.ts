@@ -7,7 +7,11 @@ export const AuthAPI = {
     return res.data.user;
   },
 
-  logout: () => {
+  loginUser: () => {
+    window.location.href = "http://localhost:4000/api/auth/login";
+  },
+
+  logoutUser: () => {
     localStorage.removeItem("token");
     window.location.href = "/";
   },

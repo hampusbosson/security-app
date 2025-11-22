@@ -3,11 +3,11 @@ import { SiGithub } from "react-icons/si";
 import { Button } from "@/components/ui/button";
 import { Link } from "react-router-dom";
 import { Shield } from "lucide-react";
+import { AuthAPI } from "@/api";
 
 const SignupPage: React.FC = () => {
   const handleGithubSignup = () => {
-    // TODO: Redirect to your backend GitHub OAuth endpoint
-    // e.g. window.location.href = `${API_BASE_URL}/auth/github`;
+    AuthAPI.loginUser();
   };
 
   return (
@@ -16,13 +16,14 @@ const SignupPage: React.FC = () => {
         {/* Logo / Product name */}
         <div className="mb-8 text-center">
           <div className="inline-flex items-center justify-center w-12 h-12 rounded-xl bg-primary/10 mb-4">
-             <Shield className="w-5 h-5 text-primary" />
+            <Shield className="w-5 h-5 text-primary" />
           </div>
           <h1 className="text-2xl font-semibold mb-2">
             <span className="text-gradient-mint">Sign up</span> to Sentra
           </h1>
           <p className="text-sm text-muted-foreground">
-            Connect your GitHub to start scanning your repositories with AI security agents.
+            Connect your GitHub to start scanning your repositories with AI
+            security agents.
           </p>
         </div>
 
@@ -43,13 +44,20 @@ const SignupPage: React.FC = () => {
           <p>No passwords. No credit card required.</p>
           <p>
             By continuing, you agree to our{" "}
-            <Link to="/terms" className="text-primary underline-offset-2 hover:underline">
+            <Link
+              to="/terms"
+              className="text-primary underline-offset-2 hover:underline"
+            >
               Terms
             </Link>{" "}
             and{" "}
-            <Link to="/privacy" className="text-primary underline-offset-2 hover:underline">
+            <Link
+              to="/privacy"
+              className="text-primary underline-offset-2 hover:underline"
+            >
               Privacy Policy
-            </Link>.
+            </Link>
+            .
           </p>
         </div>
       </div>
