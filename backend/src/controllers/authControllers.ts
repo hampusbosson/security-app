@@ -101,4 +101,26 @@ const authorizeUser = async (req: Request, res: Response) => {
   }
 };
 
-export { loginUser, authorizeUser };
+
+const getCurrentUser = async (req: Request, res: Response) => {
+    const userId = (req as any).user.userId;
+
+    const user = await prisma.user.findUnique({
+      where: { id: userId },
+      select: {
+        id: true,
+        username: true,
+        email: true,
+        avatarUrl: true,
+      },
+    });
+
+    if (!user) {
+      return res.status(404).json({ error: "User not found" });
+    }
+    
+    res.json({ user });
+}
+
+
+export { loginUser, authorizeUser, getCurrentUser };
