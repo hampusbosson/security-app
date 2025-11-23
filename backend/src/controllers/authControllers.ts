@@ -103,7 +103,7 @@ const authorizeUser = async (req: Request, res: Response) => {
 
 
 const getCurrentUser = async (req: Request, res: Response) => {
-    const userId = (req as any).user.userId;
+    const userId = (req as any).authUser.userId;
 
     const user = await prisma.user.findUnique({
       where: { id: userId },
