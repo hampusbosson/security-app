@@ -8,15 +8,8 @@ import { StatCard } from "@/components/StatCard";
 import { FindingsTable } from "@/components/dashboard/FindingsTable";
 import { ScanActivityPanel } from "@/components/dashboard/ScanActivityPanel";
 import { VulnerabilityChart } from "@/components/VulnerabilityChart";
-import { EmptyDashboardState } from "@/components/dashboard/EmptyState";
 
 const DashboardPage = () => {
-  // Mock: Replace with actual user state
-  const hasGitHubInstalled = false; // user.installations.length > 0
-
-  if (!hasGitHubInstalled) {
-    return <EmptyDashboardState />;
-  }
 
   return (
     <div className="space-y-6">

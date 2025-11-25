@@ -6,6 +6,7 @@ import { AuthAPI } from "@/api";
 interface AuthContextType {
   user: User | null;
   loading: boolean;
+  refreshUser: () => Promise<void>;
 }
 
 const AuthContext = createContext<AuthContextType | null>(null);
@@ -17,6 +18,15 @@ interface AuthProviderProps {
 const AuthProvider = ({ children }: AuthProviderProps) => {
   const [user, setUser] = useState<User | null>(null);
   const [loading, setLoading] = useState<boolean>(true);
+
+  const refreshUser = async () => {
+    try {
+      const data = await AuthAPI.refreshUser();
+      setUser(data);
+    } catch {
+      localStorage.removeItem("token");
+    }
+  };
 
   useEffect(() => {
     let isMounted = true;
@@ -57,7 +67,7 @@ const AuthProvider = ({ children }: AuthProviderProps) => {
   }, []);
 
   return (
-    <AuthContext.Provider value={{ user, loading }}>
+    <AuthContext.Provider value={{ user, loading, refreshUser }}>
       {children}
     </AuthContext.Provider>
   );

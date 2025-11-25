@@ -5,10 +5,20 @@ import { TopBar } from "@/components/dashboard/TopBar";
 import { cn } from "@/lib/utils";
 import { useAuth } from "@/hooks/useAuth";
 import { EmptyDashboardState } from "@/components/dashboard/EmptyState";
+import { useEffect } from "react";
 
 export const DashboardLayout = () => {
   const [sidebarCollapsed, setSidebarCollapsed] = useState(false);
-  const { user, loading } = useAuth();
+  const { user, loading, refreshUser } = useAuth();
+
+  useEffect(() => {
+    const searchParams = new URLSearchParams(location.search);
+    if (searchParams.get("installed") === "true") {
+      refreshUser();
+      // Remove param from URL
+      window.history.replaceState({}, "", "/dashboard");
+    }
+  }, [refreshUser]);
 
   if (loading) {
     return (
@@ -17,6 +27,9 @@ export const DashboardLayout = () => {
   }
 
   const githubInstalled = user?.installations && user.installations.length > 0;
+
+  console.log("user object:", user);
+  console.log("User installations:", user?.installations);
 
   return (
     <div className="min-h-screen bg-background">

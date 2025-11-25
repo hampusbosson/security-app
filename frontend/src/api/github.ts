@@ -1,6 +1,8 @@
+import api from "./http";
 
 export const GithubAPI = {
-    installGithubApp: () => {
-         window.location.href = "https://github.com/apps/security-ai-app/installations/new";
-    }
-}
+  installGithubApp: async () => {
+    const res = await api.get("/api/github/install-url");
+    window.location.href = res.data.url;
+  },
+};
