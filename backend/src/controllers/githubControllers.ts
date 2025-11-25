@@ -2,32 +2,56 @@ import type { Request, Response } from "express";
 import { prisma } from "../lib/prisma";
 import { getInstallationToken } from "../utils/githubApp";
 import axios from "axios";
+import jwt from "jsonwebtoken";
+
+const getInstallUrl = (req: Request, res: Response) => {
+  const jwtToken = jwt.sign(
+    { userId: req.authUser!.userId },
+    process.env.JWT_SECRET!,
+    { expiresIn: "10m" }
+  );
+
+  const installUrl = `https://github.com/apps/${process.env.GITHUB_APP_NAME}/installations/new?state=${jwtToken}`;
+
+  res.json({ url: installUrl });
+};
 
 const handleInstallation = async (req: Request, res: Response) => {
   const installationId = Number(req.query.installation_id);
+  const stateToken = req.query.state as string;
 
   if (!installationId) {
     return res.status(400).send("Missing installation_id");
   }
 
-  if (!req.authUser?.userId) {
-    return res.status(401).send("User not authenticated");
+  if (!stateToken) {
+    return res.status(400).send("Missing state token");
   }
 
+  let decoded: any;
+
   try {
-    const installation = await prisma.installation.upsert({
+    decoded = jwt.verify(stateToken, process.env.JWT_SECRET!);
+  } catch {
+    return res.status(401).send("Invalid state token");
+  }
+
+  const userId = decoded.userId;
+
+  try {
+    await prisma.installation.upsert({
       where: { installationId },
       update: {},
       create: {
         installationId,
-        userId: req.authUser?.userId,
+        userId,
       },
     });
 
     return res.redirect(`${process.env.FRONTEND_URL}/dashboard?installed=true`);
   } catch (err) {
     console.error(err);
-    res.status(500).send("Failed to save installation");
+    return res.status(500).send("Failed to save installation");
   }
 };
 
@@ -73,4 +97,4 @@ const syncUserRepositories = async (req: Request, res: Response) => {
   return res.json({ success: true, repositoriesSynced: repos.length, repositories: repos });
 };
 
-export { handleInstallation, syncUserRepositories };
+export { handleInstallation, syncUserRepositories, getInstallUrl };

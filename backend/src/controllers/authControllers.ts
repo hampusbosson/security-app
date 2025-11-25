@@ -107,11 +107,12 @@ const getCurrentUser = async (req: Request, res: Response) => {
 
     const user = await prisma.user.findUnique({
       where: { id: userId },
-      select: {
-        id: true,
-        username: true,
-        email: true,
-        avatarUrl: true,
+      include: {
+        installations: {
+          include: {
+            repositories: true,
+          },
+        },
       },
     });
 
