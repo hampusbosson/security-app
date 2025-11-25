@@ -1,10 +1,23 @@
-import { Shield, AlertTriangle, GitPullRequest, CheckCircle } from "lucide-react";
+import {
+  Shield,
+  AlertTriangle,
+  GitPullRequest,
+  CheckCircle,
+} from "lucide-react";
 import { StatCard } from "@/components/StatCard";
 import { FindingsTable } from "@/components/dashboard/FindingsTable";
 import { ScanActivityPanel } from "@/components/dashboard/ScanActivityPanel";
 import { VulnerabilityChart } from "@/components/VulnerabilityChart";
+import { EmptyDashboardState } from "@/components/dashboard/EmptyState";
 
 const DashboardPage = () => {
+  // Mock: Replace with actual user state
+  const hasGitHubInstalled = false; // user.installations.length > 0
+
+  if (!hasGitHubInstalled) {
+    return <EmptyDashboardState />;
+  }
+
   return (
     <div className="space-y-6">
       {/* Security Score Hero Card */}
@@ -16,8 +29,12 @@ const DashboardPage = () => {
                 <Shield className="w-8 h-8 text-primary" />
               </div>
               <div>
-                <h2 className="text-3xl font-bold text-foreground">Overall Security Score</h2>
-                <p className="text-sm text-muted-foreground">Last scan: 5 minutes ago</p>
+                <h2 className="text-3xl font-bold text-foreground">
+                  Overall Security Score
+                </h2>
+                <p className="text-sm text-muted-foreground">
+                  Last scan: 5 minutes ago
+                </p>
               </div>
             </div>
           </div>
@@ -28,9 +45,9 @@ const DashboardPage = () => {
             </div>
           </div>
         </div>
-        
+
         <div className="mt-6 w-full bg-muted/30 rounded-full h-3 overflow-hidden">
-          <div 
+          <div
             className="h-full bg-linear-to-r from-success via-primary to-primary transition-all duration-500 glow-primary"
             style={{ width: "87%" }}
           />

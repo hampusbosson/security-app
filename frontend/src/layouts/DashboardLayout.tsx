@@ -3,22 +3,38 @@ import { Outlet } from "react-router-dom";
 import { Sidebar } from "@/components/dashboard/Sidebar";
 import { TopBar } from "@/components/dashboard/TopBar";
 import { cn } from "@/lib/utils";
+import { useAuth } from "@/hooks/useAuth";
+import { EmptyDashboardState } from "@/components/dashboard/EmptyState";
 
 export const DashboardLayout = () => {
   const [sidebarCollapsed, setSidebarCollapsed] = useState(false);
+  const { user, loading } = useAuth();
+
+  if (loading) {
+    return (
+      <div className="p-10 text-center text-muted-foreground">Loading...</div>
+    );
+  }
+
+  const githubInstalled = user?.installations && user.installations.length > 0;
 
   return (
     <div className="min-h-screen bg-background">
-      <Sidebar collapsed={sidebarCollapsed} onToggle={() => setSidebarCollapsed(!sidebarCollapsed)} />
-      
-      <div className={cn(
-        "transition-all duration-300",
-        sidebarCollapsed ? "ml-16" : "ml-64"
-      )}>
+      <Sidebar
+        collapsed={sidebarCollapsed}
+        onToggle={() => setSidebarCollapsed(!sidebarCollapsed)}
+      />
+
+      <div
+        className={cn(
+          "transition-all duration-300",
+          sidebarCollapsed ? "ml-16" : "ml-64"
+        )}
+      >
         <TopBar />
-        
+
         <main className="container mx-auto px-6 py-8">
-          <Outlet />
+          {githubInstalled ? <Outlet /> : <EmptyDashboardState />}
         </main>
       </div>
     </div>
