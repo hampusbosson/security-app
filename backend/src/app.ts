@@ -1,12 +1,11 @@
 import express from "express";
-import session from "express-session";
-import passport from "passport";
 import dotenv from "dotenv";
 import cors from "cors";
+import { raw } from "body-parser";
 
-//import "./config/passport";
 import authRoutes from "./routes/authRoutes"
 import githubRoutes from "./routes/githubRoutes";
+import { githubWebhook } from "./controllers/githubWebhook";
 
 dotenv.config();
 
@@ -21,15 +20,15 @@ app.use(
 );
 
 
-app.use(session({
-  secret: process.env.SESSION_SECRET!,
-  resave: false,
-  saveUninitialized: false,
-}));
+// FOR FUTURE GITHUB WEBHOOK HANDLING 
+//app.post(
+//  "/api/github/webhook",
+//  raw({ type: "*/*" }),
+//  githubWebhook
+//);
 
 
-app.use(passport.initialize());
-app.use(passport.session());
+app.use(express.json());
 
 app.use("/api/auth", authRoutes);
 app.use("/api/github", githubRoutes);
