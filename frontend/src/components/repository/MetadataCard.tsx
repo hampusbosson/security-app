@@ -4,7 +4,7 @@ import { Button } from "@/components/ui/button";
 import type { Repository } from "@/types/github";
 
 interface MetadataCardProps {
-  repository: Repository;
+  repository: Repository | undefined;
 }
 
 export const MetadataCard = ({ repository }: MetadataCardProps) => {
@@ -17,11 +17,11 @@ export const MetadataCard = ({ repository }: MetadataCardProps) => {
   };
 
   const metadata = [
-    { icon: Hash, label: "Repository ID", value: repository.id },
-    { icon: Hash, label: "GitHub Repo ID", value: repository.githubRepoId },
-    { icon: GitBranch, label: "Default Branch", value: repository.defaultBranch || "main" },
-    { icon: Clock, label: "Created", value: formatDate(repository.createdAt) },
-    { icon: LinkIcon, label: "Installation ID", value: repository.id || "N/A" },  //// LOOK THIS UP LATER
+    { icon: Hash, label: "Repository ID", value: repository?.id },
+    { icon: Hash, label: "GitHub Repo ID", value: repository?.githubRepoId },
+    { icon: GitBranch, label: "Default Branch", value: repository?.defaultBranch || "main" },
+    { icon: Clock, label: "Created", value: formatDate(repository?.createdAt || "") },
+    { icon: LinkIcon, label: "Installation ID", value: repository?.id || "N/A" },  //// LOOK THIS UP LATER
   ];
 
   return (
@@ -41,7 +41,7 @@ export const MetadataCard = ({ repository }: MetadataCardProps) => {
       <Button
         variant="outline"
         className="w-full gap-2 mt-4"
-        onClick={() => window.open(`https://github.com/${repository.fullName}`, "_blank")}
+        onClick={() => window.open(`https://github.com/${repository?.fullName}`, "_blank")}
       >
         <SiGithub className="w-4 h-4" />
         Open on GitHub

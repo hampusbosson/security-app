@@ -5,7 +5,7 @@ import { useNavigate } from "react-router-dom";
 import type { Repository } from "@/types/github";
 
 interface RepoHeaderProps {
-  repository: Repository;
+  repository: Repository | undefined;
 }
 
 export const RepoHeader = ({ repository }: RepoHeaderProps) => {
@@ -25,11 +25,11 @@ export const RepoHeader = ({ repository }: RepoHeaderProps) => {
       <div className="flex items-start justify-between gap-4 flex-wrap">
         <div className="flex items-center gap-3">
           <h1 className="text-3xl font-bold text-foreground font-mono">
-            {repository.fullName}
+            {repository?.fullName}
           </h1>
-          <Badge variant={repository.private ? "secondary" : "outline"} className="gap-1">
-            {repository.private ? <Lock className="w-3 h-3" /> : <Unlock className="w-3 h-3" />}
-            {repository.private ? "Private" : "Public"}
+          <Badge variant={repository?.private ? "secondary" : "outline"} className="gap-1">
+            {repository?.private ? <Lock className="w-3 h-3" /> : <Unlock className="w-3 h-3" />}
+            {repository?.private ? "Private" : "Public"}
           </Badge>
         </div>
 
@@ -37,7 +37,7 @@ export const RepoHeader = ({ repository }: RepoHeaderProps) => {
           <Button
             variant="outline"
             size="icon"
-            onClick={() => window.open(`https://github.com/${repository.fullName}`, "_blank")}
+            onClick={() => window.open(`https://github.com/${repository?.fullName}`, "_blank")}
           >
             <Github className="w-4 h-4" />
           </Button>

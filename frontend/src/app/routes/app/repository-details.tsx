@@ -6,10 +6,81 @@ import { MetadataCard } from "@/components/repository/MetadataCard";
 import { FindingsTable } from "@/components/repository/FindingsTable";
 import { ScanHistoryChart } from "@/components/repository/ScanHistoryChart";
 import { PullRequestsPanel } from "@/components/repository/PullRequestsPanel";
+import type { Finding, PullRequest, ScanHistory } from "@/types/github";
+
+const mockFindings: Finding[] = [
+  {
+    id: "1",
+    severity: "Critical",
+    title: "SQL Injection in user query",
+    filePath: "src/controllers/user.ts",
+    lineNumber: 45,
+    status: "Open",
+  },
+  {
+    id: "2",
+    severity: "High",
+    title: "Insecure JWT validation",
+    filePath: "src/auth/jwt.ts",
+    lineNumber: 23,
+    status: "Open",
+  },
+  {
+    id: "3",
+    severity: "Medium",
+    title: "Missing rate limiting",
+    filePath: "src/middleware/api.ts",
+    lineNumber: 12,
+    status: "Resolved",
+  },
+  {
+    id: "4",
+    severity: "Low",
+    title: "Outdated dependency",
+    filePath: "package.json",
+    lineNumber: 18,
+    status: "Resolved",
+  },
+];
+
+const mockScanHistory: ScanHistory[] = [
+  { date: "Jan 20", score: 72 },
+  { date: "Jan 21", score: 75 },
+  { date: "Jan 22", score: 78 },
+  { date: "Jan 23", score: 82 },
+  { date: "Jan 24", score: 85 },
+];
+
+const mockPullRequests: PullRequest[] = [
+        {
+      id: 1,
+      number: 234,
+      title: "Fix: Secure SQL query parameterization",
+      status: "Open",
+      createdAt: "2024-01-24T14:30:00Z",
+      url: "https://github.com/myorg/api-backend/pull/234",
+    },
+    {
+      id: 2,
+      number: 233,
+      title: "Security: Update JWT validation logic",
+      status: "Merged",
+      createdAt: "2024-01-23T10:15:00Z",
+      url: "https://github.com/myorg/api-backend/pull/233",
+    },
+    {
+      id: 3,
+      number: 232,
+      title: "Fix: Add rate limiting middleware",
+      status: "Merged",
+      createdAt: "2024-01-22T16:45:00Z",
+      url: "https://github.com/myorg/api-backend/pull/232",
+    },
+]
 
 const RepositoryDetailPage = () => {
   const { id } = useParams<{ id: string }>();
-  const { repository, findings, scanHistory, pullRequests } = useRepository(id || "1");
+  const { repository } = useRepository(id || "");
 
   return (
     <div className="space-y-6">
@@ -18,8 +89,8 @@ const RepositoryDetailPage = () => {
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
         <div className="lg:col-span-1">
           <SecurityScorePanel
-            score={repository.securityScore || 0}
-            lastScan={repository.lastScan || "Never"}
+            score={repository?.securityScore || 0}
+            lastScan={repository?.lastScan || "Never"}
           />
         </div>
         <div className="lg:col-span-2">
@@ -27,11 +98,11 @@ const RepositoryDetailPage = () => {
         </div>
       </div>
 
-      <FindingsTable findings={findings} />
+      <FindingsTable findings={mockFindings} />
 
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-        <ScanHistoryChart data={scanHistory} />
-        <PullRequestsPanel pullRequests={pullRequests} />
+        <ScanHistoryChart data={mockScanHistory} />
+        <PullRequestsPanel pullRequests={mockPullRequests} />
       </div>
     </div>
   );
