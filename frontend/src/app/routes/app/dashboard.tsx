@@ -8,8 +8,16 @@ import { StatCard } from "@/components/StatCard";
 import { FindingsTable } from "@/components/dashboard/FindingsTable";
 import { ScanActivityPanel } from "@/components/dashboard/ScanActivityPanel";
 import { VulnerabilityChart } from "@/components/VulnerabilityChart";
+import { useAuth } from "@/hooks/useAuth";
 
 const DashboardPage = () => {
+  const { user } = useAuth();
+
+  const reposLength =
+    user?.installations.reduce(
+      (sum, inst) => sum + (inst.repositories?.length ?? 0),
+      0
+    ) ?? 0;
 
   return (
     <div className="space-y-6">
@@ -51,7 +59,7 @@ const DashboardPage = () => {
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
         <StatCard
           title="Repositories"
-          value="12"
+          value={reposLength}
           icon={Shield}
           trend="+2 this week"
         />

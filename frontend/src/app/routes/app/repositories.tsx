@@ -2,17 +2,15 @@ import { SecurityScoreCard } from "@/components/SecurityScoreCard";
 import { Button } from "@/components/ui/button";
 import { Plus, Search } from "lucide-react";
 import { Input } from "@/components/ui/input";
-
-const repositories = [
-  { name: "api-backend", score: 85, lastScan: "5 min ago" },
-  { name: "web-app", score: 92, lastScan: "12 min ago" },
-  { name: "mobile-app", score: 78, lastScan: "1 hour ago" },
-  { name: "webhook-service", score: 88, lastScan: "2 hours ago" },
-  { name: "admin-panel", score: 95, lastScan: "3 hours ago" },
-  { name: "payment-gateway", score: 72, lastScan: "5 hours ago" },
-];
+import { useAuth } from "@/hooks/useAuth";
 
 const RepositoriesPage = () => {
+  const { user } = useAuth();
+
+  const repos = user?.installations.flatMap(inst => inst.repositories) ?? [];
+
+  console.log('repos:', repos);
+
   return (
     <div className="space-y-6">
       <div className="flex items-center justify-between">
@@ -34,13 +32,13 @@ const RepositoriesPage = () => {
         />
       </div>
 
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-        {repositories.map((repo) => (
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 cursor-pointer">
+        {repos.map((repo) => (
           <SecurityScoreCard
-            key={repo.name}
-            repository={repo.name}
-            score={repo.score}
-            lastScan={repo.lastScan}
+            key={repo?.name}
+            repository={repo}
+            score={repo?.score ?? undefined}
+            lastScan={repo?.lastScan ?? "Not yet scanned"}
           />
         ))}
       </div>

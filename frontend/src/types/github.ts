@@ -15,4 +15,10 @@ export interface Repository {
   private: boolean;
   defaultBranch?: string | null;
   createdAt: string;
+  score?: number; // e.g. 87
+  lastScan?: string; // e.g. "5 min ago" or ISO timestamp
+  criticalFindings?: number;
+  highFindings?: number;
+  mediumFindings?: number;
+  lowFindings?: number;
 }
