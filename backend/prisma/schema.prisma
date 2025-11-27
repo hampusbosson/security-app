@@ -29,13 +29,20 @@ model Installation {
 }
 
 model Repository {
-  id             Int          @id @default(autoincrement())
-  githubRepoId   Int          @unique
-  name           String
-  fullName       String
-  private        Boolean
-  defaultBranch  String?
-  createdAt      DateTime     @default(now())
+  id            Int      @id @default(autoincrement())
+  githubRepoId  Int      @unique
+  name          String
+  fullName      String
+  private       Boolean
+  defaultBranch String?
+  createdAt     DateTime @default(now())
+  lastCommit              String?
+  openPrCount             Int?
+  openIssueCount          Int?
+  primaryLanguage         String?
+  branchProtectionEnabled Boolean? @default(false)
+  dependabotAlertCount    Int?     @default(0)
+  secretScanningEnabled   Boolean? @default(false)
   securityScore  Int?
   lastScan       DateTime?
   installationId Int
