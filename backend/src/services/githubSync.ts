@@ -10,7 +10,10 @@ export async function syncInstallationRepos(ghInstallationId: number) {
   });
 
   if (!installation) {
-    console.warn("syncInstallationRepos: no installation row for", ghInstallationId);
+    console.warn(
+      "syncInstallationRepos: no installation row for",
+      ghInstallationId
+    );
     return;
   }
 
@@ -46,6 +49,8 @@ export async function syncInstallationRepos(ghInstallationId: number) {
         fullName: r.full_name,
         private: r.private,
         defaultBranch: r.default_branch,
+        securityScore: null,
+        lastScan: null,
         installationId: dbInstallationId, // internal FK
       },
     });

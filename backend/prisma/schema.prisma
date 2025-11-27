@@ -1,6 +1,6 @@
 generator client {
   provider = "prisma-client"
-  output   = "./generated/prisma"
+  output   = "../src/generated/prisma"
 }
 
 datasource db {
@@ -36,6 +36,8 @@ model Repository {
   private        Boolean
   defaultBranch  String?
   createdAt      DateTime     @default(now())
+  securityScore  Int?
+  lastScan       DateTime?
   installationId Int
   installation   Installation @relation(fields: [installationId], references: [id])
 }
