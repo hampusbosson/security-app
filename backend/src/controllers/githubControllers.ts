@@ -3,6 +3,7 @@ import { prisma } from "../lib/prisma";
 import { getInstallationToken } from "../utils/githubApp";
 import axios from "axios";
 import jwt from "jsonwebtoken";
+import { syncInstallationRepos } from "../services/githubSync";
 
 const getInstallUrl = (req: Request, res: Response) => {
   const jwtToken = jwt.sign(
@@ -29,7 +30,6 @@ const handleInstallation = async (req: Request, res: Response) => {
   }
 
   let decoded: any;
-
   try {
     decoded = jwt.verify(stateToken, process.env.JWT_SECRET!);
   } catch {
@@ -37,13 +37,20 @@ const handleInstallation = async (req: Request, res: Response) => {
   }
 
   const userId = decoded.userId;
+  const accountLogin = req.query.account_login as string | null;
+  const accountType = req.query.account_type as string | null;
 
   try {
     await prisma.installation.upsert({
       where: { installationId },
-      update: {},
+      update: {
+        accountLogin,
+        accountType,
+      },
       create: {
         installationId,
+        accountLogin,
+        accountType,
         userId,
       },
     });
@@ -61,40 +68,12 @@ const syncUserRepositories = async (req: Request, res: Response) => {
   });
 
   if (!installation) {
-    res.status(404).send("Installation not found");
-    return;
+    return res.status(404).send("Installation not found");
   }
 
-  const token = await getInstallationToken(installation.installationId);
+  await syncInstallationRepos(installation.installationId);
 
-  const repoRes = await axios.get(
-    `https://api.github.com/installation/repositories`,
-    {
-      headers: {
-        Authorization: `Bearer ${token}`,
-        Accept: "application/vnd.github+json",
-      },
-    }
-  );
-
-  const repos = repoRes.data.repositories;
-
-  for (const r of repos) {
-    await prisma.repository.upsert({
-      where: { githubRepoId: r.id },
-      update: {},
-      create: {
-        githubRepoId: r.id,
-        name: r.name,
-        fullName: r.full_name,
-        private: r.private,
-        defaultBranch: r.default_branch,
-        installationId: installation.id,
-      },
-    });
-  }
-
-  return res.json({ success: true, repositoriesSynced: repos.length, repositories: repos });
+  return res.json({ success: true });
 };
 
 export { handleInstallation, syncUserRepositories, getInstallUrl };
