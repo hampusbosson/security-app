@@ -13,6 +13,7 @@ import FindingsPage from "./routes/app/findings";
 import PullRequestsPage from "./routes/app/pull-requests";
 import TrendsPage from "./routes/app/trends";
 import SignupPage from "./routes/auth/signup";
+import RepositoryDetailPage from "./routes/app/repository-details";
 
 const AppRouter: React.FC = () => {
   return (
@@ -49,6 +50,10 @@ const AppRouter: React.FC = () => {
             path={paths.app.repositories.path}
             element={<RepositoriesPage />}
           />
+          <Route
+            path={paths.app.repositoryDetailsPage.path}
+            element={<RepositoryDetailPage />}
+          ></Route>
           <Route path={paths.app.findings.path} element={<FindingsPage />} />
           <Route
             path={paths.app.pullRequests.path}

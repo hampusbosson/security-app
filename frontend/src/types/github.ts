@@ -15,10 +15,33 @@ export interface Repository {
   private: boolean;
   defaultBranch?: string | null;
   createdAt: string;
-  score?: number; // e.g. 87
+  securityScore?: number; // e.g. 87
   lastScan?: string; // e.g. "5 min ago" or ISO timestamp
   criticalFindings?: number;
   highFindings?: number;
   mediumFindings?: number;
   lowFindings?: number;
+}
+
+export interface Finding {
+  id: string;
+  severity: "Critical" | "High" | "Medium" | "Low";
+  title: string;
+  filePath: string;
+  lineNumber: number;
+  status: "Open" | "Resolved";
+}
+
+export interface ScanHistory {
+  date: string;
+  score: number;
+}
+
+export interface PullRequest {
+  id: number;
+  number: number;
+  title: string;
+  status: "Merged" | "Open" | "Closed";
+  createdAt: string;
+  url: string;
 }

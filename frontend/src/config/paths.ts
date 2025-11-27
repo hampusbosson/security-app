@@ -29,6 +29,10 @@ export const paths = {
       path: "repositories",
       getHref: () => "/dashboard/repositories",
     },
+    repositoryDetailsPage: {
+      path: "repositories/:id",
+      getHref: (id: number | string) => `/dashboard/repositories/${id}`,
+    },
     findings: {
       path: "findings",
       getHref: () => "/dashboard/findings",
