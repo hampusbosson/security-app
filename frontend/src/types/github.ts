@@ -21,6 +21,13 @@ export interface Repository {
   highFindings?: number;
   mediumFindings?: number;
   lowFindings?: number;
+  lastCommit?: string | null;
+  openPrCount?: number | null;
+  openIssueCount?: number | null;
+  branchProtectionEnabled?: boolean;
+  dependabotAlertCount?: number | null;
+  secretScanningEnabled?: boolean;
+  primaryLanguage?: string | null;
 }
 
 export interface Finding {

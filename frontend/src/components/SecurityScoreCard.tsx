@@ -1,5 +1,6 @@
 import { cn } from "@/lib/utils";
 import type { Repository } from "@/types/github";
+import { getGrade } from "@/lib/securityGrading";
 
 interface SecurityScoreCardProps {
   score?: number;
@@ -21,15 +22,7 @@ export const SecurityScoreCard = ({
   const displayScore = hasScore ? safeScore : "--";
   const displayLastScan = lastScan ?? "Not yet scanned";
 
-  const getGrade = (score: number) => {
-    if (score >= 90) return { grade: "A", color: "text-success" };
-    if (score >= 80) return { grade: "B", color: "text-primary" };
-    if (score >= 70) return { grade: "C", color: "text-warning" };
-    if (score >= 60) return { grade: "D", color: "text-warning" };
-    return { grade: "F", color: "text-destructive" };
-  };
-
-  // If no score → show "--"
+  // If no score, show "--"
   const { grade, color } = hasScore
     ? getGrade(safeScore)
     : { grade: "--", color: "text-muted-foreground" };
