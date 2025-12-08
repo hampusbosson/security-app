@@ -84,22 +84,18 @@ const RepositoryDetailPage = () => {
 
   return (
     <div className="space-y-8">
-      {/* Repo Title */}
       <RepoHeader repository={repository} />
 
-      {/* ⭐ FULL-WIDTH SECURITY SCORE PANEL */}
       <SecurityScorePanel
         score={repository?.securityScore || 0}
         lastScan={repository?.lastScan || "Never"}
       />
 
-      {/* Row: Metadata & Scan History */}
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
         <MetadataCard repository={repository} />
        <PullRequestsPanel pullRequests={mockPullRequests} /> 
       </div>
 
-      {/* Full-width: Findings */}
       <FindingsTable findings={mockFindings} />
     </div>
   );

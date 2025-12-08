@@ -3,6 +3,7 @@ import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { useNavigate } from "react-router-dom";
 import type { Repository } from "@/types/github";
+import { ScanAPI } from "@/api/scan";
 
 interface RepoHeaderProps {
   repository: Repository | undefined;
@@ -10,6 +11,10 @@ interface RepoHeaderProps {
 
 export const RepoHeader = ({ repository }: RepoHeaderProps) => {
   const navigate = useNavigate();
+
+  const handleTriggerScan = () => {
+    ScanAPI.runScan(repository!.id);
+  }
 
   return (
     <div className="flex flex-col gap-4 animate-fade-in">
@@ -41,7 +46,7 @@ export const RepoHeader = ({ repository }: RepoHeaderProps) => {
           >
             <Github className="w-4 h-4" />
           </Button>
-          <Button className="glow-primary gap-2">
+          <Button className="glow-primary gap-2" onClick={handleTriggerScan}>
             <Play className="w-4 h-4" />
             Trigger Scan
           </Button>

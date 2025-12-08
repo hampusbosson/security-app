@@ -5,6 +5,7 @@ import { raw } from "body-parser";
 
 import authRoutes from "./routes/authRoutes"
 import githubRoutes from "./routes/githubRoutes";
+import scanRoutes from "./routes/scanRoutes";
 import { githubWebhook } from "./controllers/githubWebhook";
 
 dotenv.config();
@@ -32,6 +33,7 @@ app.use(express.json());
 
 app.use("/api/auth", authRoutes);
 app.use("/api/github", githubRoutes);
+app.use("/api/scan", scanRoutes);
 
 app.get("/", (_, res) => {
   res.send("Backend is running.");

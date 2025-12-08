@@ -15,6 +15,7 @@ model User {
   avatarUrl     String?
   createdAt     DateTime       @default(now())
   installations Installation[]
+  scans         Scan[]
 }
 
 model Installation {
@@ -29,22 +30,76 @@ model Installation {
 }
 
 model Repository {
-  id            Int      @id @default(autoincrement())
-  githubRepoId  Int      @unique
-  name          String
-  fullName      String
-  private       Boolean
-  defaultBranch String?
-  createdAt     DateTime @default(now())
+  id                      Int          @id @default(autoincrement())
+  githubRepoId            Int          @unique
+  name                    String
+  fullName                String
+  private                 Boolean
+  defaultBranch           String?
+  createdAt               DateTime     @default(now())
   lastCommit              String?
   openPrCount             Int?
   openIssueCount          Int?
   primaryLanguage         String?
-  branchProtectionEnabled Boolean? @default(false)
-  dependabotAlertCount    Int?     @default(0)
-  secretScanningEnabled   Boolean? @default(false)
-  securityScore  Int?
-  lastScan       DateTime?
-  installationId Int
-  installation   Installation @relation(fields: [installationId], references: [id])
+  branchProtectionEnabled Boolean?     @default(false)
+  dependabotAlertCount    Int?         @default(0)
+  secretScanningEnabled   Boolean?     @default(false)
+  securityScore           Int?
+  lastScan                DateTime?
+  installationId          Int
+  installation            Installation @relation(fields: [installationId], references: [id])
+  scans                   Scan[]
+}
+
+model Scan {
+  id           Int        @id @default(autoincrement())
+  repository   Repository @relation(fields: [repositoryId], references: [id])
+  repositoryId Int
+  user         User       @relation(fields: [userId], references: [id])
+  userId       Int
+
+  status      ScanStatus @default(PENDING)
+  createdAt   DateTime   @default(now())
+  startedAt   DateTime?
+  completedAt DateTime?
+
+  report          ScanReport?
+  vulnerabilities Vulnerability[]
+}
+
+model ScanReport {
+  id        Int      @id @default(autoincrement())
+  scan      Scan     @relation(fields: [scanId], references: [id])
+  scanId    Int      @unique
+  content   String // penetration_test_report.md content
+  createdAt DateTime @default(now())
+}
+
+model Vulnerability {
+  id     Int  @id @default(autoincrement())
+  scan   Scan @relation(fields: [scanId], references: [id])
+  scanId Int
+
+  code        String? // vuln-0001
+  title       String
+  severity    Severity
+  filePath    String?
+  line        Int?
+  description String
+  remediation String?
+  createdAt   DateTime @default(now())
+}
+
+enum ScanStatus {
+  PENDING
+  RUNNING
+  COMPLETED
+  FAILED
+}
+
+enum Severity {
+  LOW
+  MEDIUM
+  HIGH
+  CRITICAL
 }
