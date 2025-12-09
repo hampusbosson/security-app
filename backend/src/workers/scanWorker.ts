@@ -7,13 +7,13 @@ const worker = new Worker<ScanJobPayload>(
   QUEUE_NAMES.SCAN,
   async (job: Job) => {
     console.log("Processing scan job:", job.data);
-    //await handleScanJob(job.data);
+    await handleScanJob(job.data);
   },
   {
     connection: redisConfig,
     removeOnFail: { count: 0 },
     removeOnComplete: { count: 0 },
-    concurrency: 1, // Process one job at a time
+    concurrency: 1, // Process one job at a time 
   }
 );
 
