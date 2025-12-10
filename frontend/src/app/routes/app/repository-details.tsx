@@ -6,7 +6,11 @@ import { MetadataCard } from "@/components/repository/MetadataCard";
 import { FindingsTable } from "@/components/repository/FindingsTable";
 //import { ScanHistoryChart } from "@/components/repository/ScanHistoryChart";
 import { PullRequestsPanel } from "@/components/repository/PullRequestsPanel";
-import type { Finding, PullRequest, ScanHistory } from "@/types/github";
+import { ScanProgress } from "@/components/repository/ScanProgress";
+import { ScanResultPanel } from "@/components/repository/ScanResultPanel";
+import type { Finding, PullRequest /*ScanHistory */ } from "@/types/github";
+//import { ScanAPI } from "@/api/scan";
+import { useState } from "react";
 
 const mockFindings: Finding[] = [
   {
@@ -43,6 +47,7 @@ const mockFindings: Finding[] = [
   },
 ];
 
+/*
 const mockScanHistory: ScanHistory[] = [
   { date: "Jan 20", score: 72 },
   { date: "Jan 21", score: 75 },
@@ -50,6 +55,8 @@ const mockScanHistory: ScanHistory[] = [
   { date: "Jan 23", score: 82 },
   { date: "Jan 24", score: 85 },
 ];
+
+*/
 
 const mockPullRequests: PullRequest[] = [
   {
@@ -81,10 +88,44 @@ const mockPullRequests: PullRequest[] = [
 const RepositoryDetailPage = () => {
   const { id } = useParams<{ id: string }>();
   const { repository } = useRepository(id || "");
+  const [isScanning, setIsScanning] = useState(false);
+  const [showResults, setShowResults] = useState(false);
+
+  const handleTriggerScan = () => {
+    setIsScanning(true);
+    setShowResults(false);
+    //ScanAPI.runScan(repository!.id);
+  };
+
+  const handleScanComplete = () => {
+    setIsScanning(false);
+    setShowResults(true);
+  };
+
+  const handleRetry = () => {
+    setIsScanning(true);
+    setShowResults(false);
+  };
 
   return (
     <div className="space-y-8">
-      <RepoHeader repository={repository} />
+      <RepoHeader repository={repository} onTriggerScan={handleTriggerScan} />
+
+      {isScanning && (
+        <ScanProgress
+          isScanning={isScanning}
+          onScanComplete={handleScanComplete}
+          onRetry={handleRetry}
+          onViewReport={() => setShowResults(true)}
+        />
+      )}
+
+      {showResults && !isScanning && (
+        <ScanResultPanel
+          repositoryName={repository?.name}
+          onRunNewScan={handleTriggerScan}
+        />
+      )}
 
       <SecurityScorePanel
         score={repository?.securityScore || 0}
@@ -93,7 +134,7 @@ const RepositoryDetailPage = () => {
 
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
         <MetadataCard repository={repository} />
-       <PullRequestsPanel pullRequests={mockPullRequests} /> 
+        <PullRequestsPanel pullRequests={mockPullRequests} />
       </div>
 
       <FindingsTable findings={mockFindings} />
