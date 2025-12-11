@@ -11,26 +11,26 @@ export class ScanQueue {
     console.log("Adding scan job to queue:", payload);
 
     const job = await this.queue.add("scan", payload, {
-        attempts: 3,
-        backoff: {
-            type: "exponential",
-            delay: 5000,
-        },
-        removeOnComplete: true,
-        removeOnFail: false,
+      attempts: 3,
+      backoff: {
+        type: "exponential",
+        delay: 5000,
+      },
+      removeOnComplete: true,
+      removeOnFail: false,
     });
-    
+
     return job.id;
   }
 
-  static async removeScanJob(jobId: string) {
-    const job = await this.queue.getJob(jobId);
-    if (job) {
-      await job.remove();
-      console.log(`Removed scan job with ID: ${jobId}`);
-    } else {
-      console.log(`No job found with ID: ${jobId}`);
-      return;
+  static async removeScanJob(scanId: number) {
+    const waiting = await this.queue.getWaiting();
+    const delayed = await this.queue.getDelayed();
+
+    for (const job of [...waiting, ...delayed]) {
+      if (job.data.scanId === scanId) {
+        await job.remove();
+      }
     }
   }
 }

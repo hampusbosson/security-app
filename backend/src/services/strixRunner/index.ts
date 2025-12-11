@@ -43,7 +43,7 @@ export async function runStrixForRepo(
   let result: StrixScanResult;
   try {
     console.log(`[StrixRunner] Running Strix scan (non-interactive)...`);
-    result = await runStrixLocal({ repoLocalPath });
+    result = await runStrixLocal({ repoLocalPath, scanId });
     console.log(`[StrixRunner] Strix scan complete`);
   } catch (err) {
     console.error(`[StrixRunner] ERROR running Strix:`, err);

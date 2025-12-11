@@ -4,13 +4,19 @@ import path, { parse } from "node:path";
 import { getLatestStrixRunDir } from "./fsUtils";
 import { parseStrixOutput } from "./parseStrixOutput";
 import type { StrixScanResult } from "./types";
+import {
+  registerStrixProcess,
+  unregisterStrixProcess,
+} from "./processRegistry";
 
 type RunStrixParams = {
   repoLocalPath: string; // e.g. /tmp/devguard/repo-123
+  scanId: number;
 };
 
 export async function runStrixLocal({
   repoLocalPath,
+  scanId,
 }: RunStrixParams): Promise<StrixScanResult> {
   console.log("[StrixLocal] Running Strix in:", repoLocalPath);
 
@@ -24,6 +30,9 @@ export async function runStrixLocal({
       PYTHONIOENCODING: "utf-8",
     },
   });
+
+  //register process under this scanId:
+  registerStrixProcess(scanId, child);
 
   // 2) Stream stdout / stderr
   child.stdout.on("data", (data) => {
@@ -40,8 +49,21 @@ export async function runStrixLocal({
 
   // 3) Wait for process to finish
   const exitCode: number = await new Promise((resolve, reject) => {
-    child.on("error", reject);
-    child.on("close", (code) => resolve(code ?? 0));
+    child.on("error", (err) => {
+      unregisterStrixProcess(scanId);
+      reject(err);
+    });
+
+    child.on("close", (code, signal) => {
+      unregisterStrixProcess(scanId);
+
+      // If we killed it with SIGTERM => treat as "cancelled"
+      if (signal === "SIGTERM") {
+        return reject(new Error("SCAN_CANCELLED"));
+      }
+
+      resolve(code ?? 0);
+    });
   });
 
   if (exitCode !== 0) {

@@ -34,7 +34,7 @@ export async function handleScanJob(job: ScanJobPayload) {
           scanId,
           severity: v.severity,
           title: v.title,
-          strixId: v.id,
+          code: v.id,
           filePath: v.filePath,
           description: v.description,
           remediation: v.remediation,
@@ -45,10 +45,16 @@ export async function handleScanJob(job: ScanJobPayload) {
     console.log(`Scan ${scanId} completed`);
   } catch (err) {
     console.error("Error in scan worker:", err);
+
+    const message = err instanceof Error ? err.message : String(err ?? "Unknown error");
+
+    // if we killed the process ourselves
+    const status = message === "SCAN_CANCELLED" ? "CANCELLED" : "FAILED";
+
     await prisma.scan.update({
       where: { id: scanId },
       data: {
-        status: "FAILED",
+        status,
         completedAt: new Date(),
       },
     });

@@ -1,7 +1,7 @@
 import type { Request, Response } from "express";
 import { prisma } from "../lib/prisma";
 import { ScanQueue } from "../queue";
-import { ModelName } from "../generated/prisma/internal/prismaNamespace";
+import { stopStrixProcess } from "../services/strixRunner/processRegistry";
 
 const runScan = async (req: Request, res: Response) => {
   const { repositoryId } = req.params;
@@ -53,8 +53,10 @@ const runScan = async (req: Request, res: Response) => {
 };
 
 const stopScan = async (req: Request, res: Response) => {
+  console.log("Received request to stop scan");
   const { scanId } = req.params;
   const userId = (req as any).authUser.userId;
+  const idNum = Number(scanId);
 
   if (!scanId) {
     res.status(400).json({ error: "invalid scanID" });
@@ -63,8 +65,12 @@ const stopScan = async (req: Request, res: Response) => {
 
   try {
     const scan = await prisma.scan.findFirst({
-      where: { id: Number(scanId), userId },
+      where: { id: idNum, userId },
     });
+
+    console.log("Found scan:", scan);
+
+    console.log("scan status:", scan?.status);
 
     if (!scan) {
       res.status(404).json({ error: "Scan not found" });
@@ -85,32 +91,38 @@ const stopScan = async (req: Request, res: Response) => {
 
     // if still waiting in queue, remove job from queue
     if (scan.status === "PENDING" && scan.bullJobId) {
-      await ScanQueue.removeScanJob(scan.bullJobId);
+      await ScanQueue.removeScanJob(idNum);
 
       await prisma.scan.update({
         where: { id: scan.id },
         data: { status: "CANCELLED", completedAt: new Date() },
       });
 
-      res.json({ success: true, status: "CANCELLED", mode: "queue" });
+      res.json({ success: true, status: "CANCELLED" });
       return;
     }
 
-    // if scan is running, mark cancelRequested to true
+    // if scan is running, attempt to stop the process
     if (scan.status === "RUNNING") {
+      const stopped = stopStrixProcess(scan.id);
+
+      // if failed to stop process
+      if (!stopped) {
+        res
+          .status(500)
+          .json({ error: "Failed to stop the running scan process" });
+        return;
+      }
+
+      // mark scan as cancelled in db
       await prisma.scan.update({
         where: { id: scan.id },
-        data: {
-          cancelRequested: true,
-          status: "CANCELLED",
-          completedAt: new Date(),
-        },
+        data: { status: "CANCELLED", completedAt: new Date() },
       });
 
-      // (Strix still finishes in background, but UI treats it as stopped)
-      return res.json({ success: true, status: "CANCELLED", mode: "running_soft" });
+      return res.json({ success: true, status: "CANCELLED" });
     };
-    
+
   } catch (error) {
     console.error("Error stopping scan:", error);
     res.status(500).send("Internal Server Error");
