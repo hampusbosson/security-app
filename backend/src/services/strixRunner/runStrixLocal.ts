@@ -1,59 +1,66 @@
-import { exec } from "node:child_process";
-import { promisify } from "node:util";
-import path from "node:path";
+// src/services/strixRunner/runStrixLocal.ts
+import { spawn } from "node:child_process";
+import path, { parse } from "node:path";
 import { getLatestStrixRunDir } from "./fsUtils";
 import { parseStrixOutput } from "./parseStrixOutput";
 import type { StrixScanResult } from "./types";
 
-const execAsync = promisify(exec);
-
 type RunStrixParams = {
-  repoLocalPath: string;
+  repoLocalPath: string; // e.g. /tmp/devguard/repo-123
 };
 
 export async function runStrixLocal({
   repoLocalPath,
 }: RunStrixParams): Promise<StrixScanResult> {
-  console.log(`[StrixLocal] Running Strix in: ${repoLocalPath}`);
+  console.log("[StrixLocal] Running Strix in:", repoLocalPath);
 
-  try {
-    const { stdout, stderr } = await execAsync(
-      `strix -n --target ${repoLocalPath}`,
-      {
-        cwd: repoLocalPath,
-        env: {
-          ...process.env,
-          STRIX_LLM: process.env.STRIX_LLM,
-          LLM_API_KEY: process.env.LLM_API_KEY,
-          LLM_API_BASE: process.env.LLM_API_BASE,
-        },
-      }
-    );
+  // 1) Start Strix in non-interactive mode
+  const child = spawn("strix", ["-n", "--target", repoLocalPath], {
+    cwd: repoLocalPath,
+    stdio: ["pipe", "pipe", "pipe"], // ensures pipes so we can read data
+    env: {
+      ...process.env,
+      PYTHONUNBUFFERED: "1",
+      PYTHONIOENCODING: "utf-8",
+    },
+  });
 
-    console.log(`[StrixLocal] Strix CLI stdout:\n${stdout}`);
-    if (stderr?.trim()) {
-      console.warn(`[StrixLocal] Strix CLI stderr:\n${stderr}`);
-    }
-  } catch (err) {
-    console.error(`[StrixLocal] ERROR executing Strix command:`, err);
-    throw err;
+  // 2) Stream stdout / stderr
+  child.stdout.on("data", (data) => {
+    const line = data.toString();
+    console.log("[Strix][stdout]", line.trim());
+    // later: you can push this line into DB / Redis to show in UI
+  });
+
+  child.stderr.on("data", (data) => {
+    const line = data.toString();
+    console.error("[Strix][stderr]", line.trim());
+    // same thing: could be stored as logs
+  });
+
+  // 3) Wait for process to finish
+  const exitCode: number = await new Promise((resolve, reject) => {
+    child.on("error", reject);
+    child.on("close", (code) => resolve(code ?? 0));
+  });
+
+  if (exitCode !== 0) {
+    // Strix docs: non-zero can mean “vulnerabilities found” *or* “hard error”
+    // You can decide how to treat this – for now just log it and continue parsing
+    console.warn("[StrixLocal] Strix exited with code:", exitCode);
   }
 
-  console.log(`[StrixLocal] Searching for latest Strix run directory...`);
-
+  // 4) Find latest run dir and parse report
   const runDir = getLatestStrixRunDir(repoLocalPath);
   if (!runDir) {
-    console.error(`[StrixLocal] No Strix run directory found!`);
     throw new Error("No Strix run directory found");
   }
 
-  console.log(`[StrixLocal] Found run directory: ${runDir}`);
-  console.log(`[StrixLocal] Parsing Strix results...`);
+  console.log("[StrixLocal] Using run directory:", runDir);
 
   const parsed = parseStrixOutput(runDir);
 
-  console.log(
-    `[StrixLocal] Parsed ${parsed.vulnerabilities.length} vulnerabilities.`
-  );
+  console.log("[StrixLocal] Parsed strix content:", parsed);
+
   return parsed;
 }

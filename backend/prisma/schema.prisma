@@ -63,6 +63,9 @@ model Scan {
   startedAt   DateTime?
   completedAt DateTime?
 
+  bullJobId       String? // ID of the Bull job handling this scan
+  cancelRequested Boolean @default(false)
+
   report          ScanReport?
   vulnerabilities Vulnerability[]
 }
@@ -95,6 +98,7 @@ enum ScanStatus {
   RUNNING
   COMPLETED
   FAILED
+  CANCELLED
 }
 
 enum Severity {

@@ -32,7 +32,6 @@ export async function handleScanJob(job: ScanJobPayload) {
       await prisma.vulnerability.createMany({
         data: result.vulnerabilities.map((v) => ({
           scanId,
-          repositoryId,
           severity: v.severity,
           title: v.title,
           strixId: v.id,
