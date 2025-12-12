@@ -99,6 +99,7 @@ enum ScanStatus {
   COMPLETED
   FAILED
   CANCELLED
+  CANCELLED_REQUESTED
 }
 
 enum Severity {

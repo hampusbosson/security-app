@@ -27,7 +27,7 @@ export async function handleScanJob(job: ScanJobPayload) {
       },
     });
 
-    // store vulnerabilities if you added a Vulnerability model
+    // store vulnerabilities
     if (result.vulnerabilities.length > 0) {
       await prisma.vulnerability.createMany({
         data: result.vulnerabilities.map((v) => ({
@@ -46,17 +46,33 @@ export async function handleScanJob(job: ScanJobPayload) {
   } catch (err) {
     console.error("Error in scan worker:", err);
 
-    const message = err instanceof Error ? err.message : String(err ?? "Unknown error");
+    const message =
+      err instanceof Error ? err.message : String(err ?? "Unknown error");
 
-    // if we killed the process ourselves
-    const status = message === "SCAN_CANCELLED" ? "CANCELLED" : "FAILED";
+    console.log("----- Error message -------: ", message);
 
+    if (message === "SCAN_CANCELLED") {
+      await prisma.scan.update({
+        where: { id: scanId },
+        data: {
+          status: "CANCELLED",
+          completedAt: new Date(),
+        },
+      });
+
+      console.log(`Scan ${scanId} cancelled`);
+      return; // IMPORTANT: do NOT throw error further, as this is not a failure
+    }
+
+    // real failure
     await prisma.scan.update({
       where: { id: scanId },
       data: {
-        status,
+        status: "FAILED",
         completedAt: new Date(),
       },
     });
+
+    throw err; // let BullMQ mark job as failed
   }
 }

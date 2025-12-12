@@ -1,7 +1,6 @@
 import type { Request, Response } from "express";
 import { prisma } from "../lib/prisma";
 import { ScanQueue } from "../queue";
-import { stopStrixProcess } from "../services/strixRunner/processRegistry";
 
 const runScan = async (req: Request, res: Response) => {
   const { repositoryId } = req.params;
@@ -42,6 +41,8 @@ const runScan = async (req: Request, res: Response) => {
       where: { id: scan.id },
       data: { bullJobId: jobId },
     });
+
+
 
     res.status(201).json({ scan: updatedScan });
     return;
@@ -102,25 +103,16 @@ const stopScan = async (req: Request, res: Response) => {
       return;
     }
 
-    // if scan is running, attempt to stop the process
+    // if scan is running, signal the process to stop
     if (scan.status === "RUNNING") {
-      const stopped = stopStrixProcess(scan.id);
 
-      // if failed to stop process
-      if (!stopped) {
-        res
-          .status(500)
-          .json({ error: "Failed to stop the running scan process" });
-        return;
-      }
-
-      // mark scan as cancelled in db
+      // mark as CANCELLED_REQUESTED
       await prisma.scan.update({
         where: { id: scan.id },
-        data: { status: "CANCELLED", completedAt: new Date() },
+        data: { status: "CANCELLED_REQUESTED" },
       });
 
-      return res.json({ success: true, status: "CANCELLED" });
+      return res.json({ success: true });
     };
 
   } catch (error) {

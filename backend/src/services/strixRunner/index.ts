@@ -46,7 +46,10 @@ export async function runStrixForRepo(
     result = await runStrixLocal({ repoLocalPath, scanId });
     console.log(`[StrixRunner] Strix scan complete`);
   } catch (err) {
-    console.error(`[StrixRunner] ERROR running Strix:`, err);
+    if (err instanceof Error && err.message === "SCAN_CANCELLED") {
+      console.log(`[StrixRunner] Scan ${scanId} cancelled`);
+      throw err;
+    }
     throw err;
   }
 
