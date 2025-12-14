@@ -1,9 +1,13 @@
 import { prisma } from "../lib/prisma";
 import { runStrixForRepo } from "../services/strixRunner";
 import type { ScanJobPayload } from "../queue";
+import type { StrixScanResult } from "../services/strixRunner/types";
 
 export async function handleScanJob(job: ScanJobPayload) {
   const { scanId, repositoryId, repoFullName } = job;
+
+  let result: StrixScanResult | null = null;
+  let finalStatus: "COMPLETED" | "FAILED" | "CANCELLED" = "FAILED";
 
   try {
     // mark as running
@@ -12,23 +16,31 @@ export async function handleScanJob(job: ScanJobPayload) {
       data: { status: "RUNNING", startedAt: new Date() },
     });
 
-    const result = await runStrixForRepo({
+    result = await runStrixForRepo({
       scanId,
       repositoryId,
       repoFullName,
     });
 
-    // save summary + mark as completed
-    await prisma.scan.update({
-      where: { id: scanId },
-      data: {
-        status: "COMPLETED",
-        completedAt: new Date(),
-      },
-    });
+    finalStatus = "COMPLETED";
+  } catch (err) {
+    const message =
+      err instanceof Error ? err.message : String(err ?? "Unknown error");
 
-    // store vulnerabilities
-    if (result.vulnerabilities.length > 0) {
+    // extract partial results if present
+    if (err && typeof err === "object" && "result" in err) {
+      result = (err as any).result as StrixScanResult;
+    }
+
+    if (message === "SCAN_CANCELLED") {
+      finalStatus = "CANCELLED";
+    } else {
+      finalStatus = "FAILED";
+      throw err; // let BullMQ mark job as failed
+    }
+  } finally {
+    // persist partial or full results
+    if (result?.vulnerabilities?.length) {
       await prisma.vulnerability.createMany({
         data: result.vulnerabilities.map((v) => ({
           scanId,
@@ -39,40 +51,16 @@ export async function handleScanJob(job: ScanJobPayload) {
           description: v.description,
           remediation: v.remediation,
         })),
+        skipDuplicates: true, // critical for retries / partial saves
       });
     }
 
-    console.log(`Scan ${scanId} completed`);
-  } catch (err) {
-    console.error("Error in scan worker:", err);
-
-    const message =
-      err instanceof Error ? err.message : String(err ?? "Unknown error");
-
-    console.log("----- Error message -------: ", message);
-
-    if (message === "SCAN_CANCELLED") {
-      await prisma.scan.update({
-        where: { id: scanId },
-        data: {
-          status: "CANCELLED",
-          completedAt: new Date(),
-        },
-      });
-
-      console.log(`Scan ${scanId} cancelled`);
-      return; // IMPORTANT: do NOT throw error further, as this is not a failure
-    }
-
-    // real failure
     await prisma.scan.update({
       where: { id: scanId },
       data: {
-        status: "FAILED",
+        status: finalStatus,
         completedAt: new Date(),
       },
     });
-
-    throw err; // let BullMQ mark job as failed
   }
 }

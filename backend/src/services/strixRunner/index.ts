@@ -34,34 +34,11 @@ export async function runStrixForRepo(
   try {
     await exec(`git clone ${cloneUrl} ${repoLocalPath}`);
     console.log(`[StrixRunner] Repo successfully cloned to: ${repoLocalPath}`);
-  } catch (err) {
-    console.error(`[StrixRunner] ERROR cloning repo:`, err);
-    throw err;
-  }
 
-  // 3. Run Strix
-  let result: StrixScanResult;
-  try {
     console.log(`[StrixRunner] Running Strix scan (non-interactive)...`);
-    result = await runStrixLocal({ repoLocalPath, scanId });
-    console.log(`[StrixRunner] Strix scan complete`);
-  } catch (err) {
-    if (err instanceof Error && err.message === "SCAN_CANCELLED") {
-      console.log(`[StrixRunner] Scan ${scanId} cancelled`);
-      throw err;
-    }
-    throw err;
-  }
-
-  // 4. Cleanup
-  console.log(`[StrixRunner] Cleaning up temp directory...`);
-  try {
+    return await runStrixLocal({ repoLocalPath, scanId });
+  } finally {
+    console.log(`[StrixRunner] Cleaning up temp directory: ${tempDir}`);
     fs.rmSync(tempDir, { recursive: true, force: true });
-    console.log(`[StrixRunner] Temp folder removed: ${tempDir}`);
-  } catch (err) {
-    console.warn(`[StrixRunner] Failed to remove temp folder (ignored):`, err);
   }
-
-  console.log(`[StrixRunner] Scan ${scanId} finished successfully.`);
-  return result;
 }
