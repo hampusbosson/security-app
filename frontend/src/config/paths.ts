@@ -1,5 +1,4 @@
 export const paths = {
-  // landing page routes
   landing: {
     home: {
       path: "/",
@@ -7,7 +6,6 @@ export const paths = {
     },
   },
 
-  // Authentication routes (public)
   auth: {
     signup: {
       path: "/signup",
@@ -19,35 +17,10 @@ export const paths = {
     },
   },
 
-  // App routes (protected)
   app: {
     dashboard: {
       path: "dashboard",
       getHref: () => "/dashboard",
-    },
-    repositories: {
-      path: "repositories",
-      getHref: () => "/dashboard/repositories",
-    },
-    repositoryDetailsPage: {
-      path: "repositories/:id",
-      getHref: (id: number | string) => `/dashboard/repositories/${id}`,
-    },
-    findings: {
-      path: "findings",
-      getHref: () => "/dashboard/findings",
-    },
-    pullRequests: {
-      path: "pull-requests",
-      getHref: () => "/dashboard/pull-requests",
-    },
-    trends: {
-      path: "trends",
-      getHref: () => "/dashboard/trends",
-    },
-    settings: {
-      path: "settings",
-      getHref: () => "/dashboard/settings",
     },
   },
 } as const;

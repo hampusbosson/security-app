@@ -31,24 +31,43 @@ export interface Repository {
 }
 
 export interface Finding {
-  id: string;
-  severity: "Critical" | "High" | "Medium" | "Low";
-  title: string;
-  filePath: string;
-  lineNumber: number;
-  status: "Open" | "Resolved";
-}
-
-export interface ScanHistory {
-  date: string;
-  score: number;
-}
-
-export interface PullRequest {
   id: number;
-  number: number;
+  code?: string | null;
+  severity: "LOW" | "MEDIUM" | "HIGH" | "CRITICAL";
   title: string;
-  status: "Merged" | "Open" | "Closed";
+  filePath?: string | null;
+  line?: number | null;
+  description: string;
+  remediation?: string | null;
   createdAt: string;
-  url: string;
+}
+
+export interface ScanReport {
+  id: number;
+  content: string;
+  createdAt: string;
+}
+
+export interface Scan {
+  id: number;
+  repositoryId: number;
+  userId: number;
+  status:
+    | "PENDING"
+    | "RUNNING"
+    | "COMPLETED"
+    | "FAILED"
+    | "CANCELLED"
+    | "CANCELLED_REQUESTED";
+  createdAt: string;
+  startedAt?: string | null;
+  completedAt?: string | null;
+  bullJobId?: string | null;
+  cancelRequested?: boolean;
+  report?: ScanReport | null;
+  vulnerabilities: Finding[];
+  repository?: Pick<
+    Repository,
+    "id" | "name" | "fullName" | "private" | "defaultBranch"
+  >;
 }
