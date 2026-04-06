@@ -1,5 +1,4 @@
-import { ChildProcess, spawn } from "node:child_process";
-import path, { parse } from "node:path";
+import { spawn } from "node:child_process";
 import { getLatestStrixRunDir } from "./fsUtils";
 import { parseStrixOutput } from "./parseStrixOutput";
 import type { StrixScanResult } from "./types";
@@ -40,6 +39,7 @@ export async function runStrixLocal({
 }: RunStrixParams): Promise<StrixScanResult> {
   let isCancelled = false;
   let parsedResult: StrixScanResult | null = null;
+  let cancelTimeout: NodeJS.Timeout | null = null;
 
   console.log("[StrixLocal] Running Strix in:", repoLocalPath);
 
@@ -80,28 +80,54 @@ export async function runStrixLocal({
     console.error("[Strix][stderr]", data.toString().trim());
   });
 
+  const parseLatestResults = () => {
+    const runDir = getLatestStrixRunDir(repoLocalPath);
+    if (runDir) {
+      parsedResult = parseStrixOutput(runDir);
+    }
+  };
+
+  const cancelledError = () =>
+    Object.assign(new Error("SCAN_CANCELLED"), {
+      result: parsedResult,
+    });
+
   await new Promise<void>((resolve, reject) => {
-    child.once("error", reject);
+    let settled = false;
+
+    const settle = (callback: () => void) => {
+      if (settled) return;
+      settled = true;
+      clearInterval(cancelInterval);
+      if (cancelTimeout) {
+        clearTimeout(cancelTimeout);
+        cancelTimeout = null;
+      }
+      callback();
+    };
+
+    child.once("error", (error) => {
+      settle(() => reject(error));
+    });
 
     child.once("close", () => {
-      clearInterval(cancelInterval);
-
-      // Always attempt to parse what exists
-      const runDir = getLatestStrixRunDir(repoLocalPath);
-      if (runDir) {
-        parsedResult = parseStrixOutput(runDir);
-      }
+      parseLatestResults();
 
       if (isCancelled) {
-        return reject(
-          Object.assign(new Error("SCAN_CANCELLED"), {
-            result: parsedResult,
-          })
-        );
+        return settle(() => reject(cancelledError()));
       }
 
-      resolve();
+      settle(resolve);
     });
+
+    cancelTimeout = setTimeout(() => {
+      if (!isCancelled) return;
+      console.warn(
+        `[StrixLocal] Forced cancellation fallback triggered for scan ${scanId}`
+      );
+      parseLatestResults();
+      settle(() => reject(cancelledError()));
+    }, 15_000);
   });
 
   if (!parsedResult) {

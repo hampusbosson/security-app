@@ -7,6 +7,7 @@ import authRoutes from "./routes/authRoutes"
 import githubRoutes from "./routes/githubRoutes";
 import scanRoutes from "./routes/scanRoutes";
 import { githubWebhook } from "./controllers/githubWebhook";
+import { recoverInterruptedScans } from "./services/scanRecovery";
 
 dotenv.config();
 
@@ -39,4 +40,14 @@ app.get("/", (_, res) => {
   res.send("Backend is running.");
 });
 
-app.listen(port, () => console.log(`Server running on port ${port}`));
+async function bootstrap() {
+  await recoverInterruptedScans();
+  await import("./workers/scanWorker");
+
+  app.listen(port, () => console.log(`Server running on port ${port}`));
+}
+
+bootstrap().catch((error) => {
+  console.error("Failed to start backend:", error);
+  process.exit(1);
+});

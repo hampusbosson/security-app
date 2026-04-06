@@ -39,6 +39,7 @@ export async function handleScanJob(job: ScanJobPayload) {
       throw err; // let BullMQ mark job as failed
     }
   } finally {
+    console.log("results object: ", result);
     // persist partial or full results
     if (result?.vulnerabilities?.length) {
       await prisma.vulnerability.createMany({
@@ -52,6 +53,19 @@ export async function handleScanJob(job: ScanJobPayload) {
           remediation: v.remediation,
         })),
         skipDuplicates: true, // critical for retries / partial saves
+      });
+    }
+
+    if (finalStatus === "COMPLETED" && result?.summary) {
+      await prisma.scanReport.upsert({
+        where: { scanId },
+        create: {
+          scanId,
+          content: result.summary,
+        },
+        update: {
+          content: result.summary,
+        },
       });
     }
 

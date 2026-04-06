@@ -31,6 +31,7 @@ export async function runStrixForRepo(
   const cloneUrl = `https://github.com/${repoFullName}.git`;
   console.log(`[StrixRunner] Cloning repo: ${cloneUrl}`);
 
+  // 3. Run Strix
   try {
     await exec(`git clone ${cloneUrl} ${repoLocalPath}`);
     console.log(`[StrixRunner] Repo successfully cloned to: ${repoLocalPath}`);
