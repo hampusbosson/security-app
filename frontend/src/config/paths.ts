@@ -5,6 +5,12 @@ export const paths = {
       getHref: () => "/",
     },
   },
+  demo: {
+    home: {
+      path: "/demo",
+      getHref: () => "/demo",
+    },
+  },
 
   auth: {
     signup: {

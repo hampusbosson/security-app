@@ -4,4 +4,6 @@ export type ScanJobPayload = {
   repoFullName: string; // "owner/name"
   githubCloneUrl: string;
   userId: number;
+  strixLlm: string;
+  llmApiKey: string;
 };

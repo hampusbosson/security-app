@@ -4,7 +4,7 @@ import type { ScanJobPayload } from "../queue";
 import type { StrixScanResult } from "../services/strixRunner/types";
 
 export async function handleScanJob(job: ScanJobPayload) {
-  const { scanId, repositoryId, repoFullName } = job;
+  const { scanId, repositoryId, repoFullName, strixLlm, llmApiKey } = job;
 
   let result: StrixScanResult | null = null;
   let finalStatus: "COMPLETED" | "FAILED" | "CANCELLED" = "FAILED";
@@ -20,6 +20,8 @@ export async function handleScanJob(job: ScanJobPayload) {
       scanId,
       repositoryId,
       repoFullName,
+      strixLlm,
+      llmApiKey,
     });
 
     finalStatus = "COMPLETED";

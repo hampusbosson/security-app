@@ -31,15 +31,36 @@ function killProcessTree(child: import("node:child_process").ChildProcess) {
 type RunStrixParams = {
   repoLocalPath: string; // e.g. /tmp/devguard/repo-123
   scanId: number;
+  strixLlm: string;
+  llmApiKey: string;
 };
 
 export async function runStrixLocal({
   repoLocalPath,
   scanId,
+  strixLlm,
+  llmApiKey,
 }: RunStrixParams): Promise<StrixScanResult> {
   let isCancelled = false;
   let parsedResult: StrixScanResult | null = null;
   let cancelTimeout: NodeJS.Timeout | null = null;
+  const scanEnv: NodeJS.ProcessEnv = {
+    ...process.env,
+    PYTHONUNBUFFERED: "1",
+    PYTHONIOENCODING: "utf-8",
+    STRIX_LLM: strixLlm,
+    LLM_API_KEY: llmApiKey,
+  };
+
+  // Prevent stale backend-level provider settings from leaking into a per-scan run.
+  delete scanEnv.OPENAI_API_KEY;
+  delete scanEnv.ANTHROPIC_API_KEY;
+  delete scanEnv.GEMINI_API_KEY;
+  delete scanEnv.GOOGLE_API_KEY;
+
+  if (!strixLlm.startsWith("ollama/")) {
+    delete scanEnv.LLM_API_BASE;
+  }
 
   console.log("[StrixLocal] Running Strix in:", repoLocalPath);
 
@@ -47,11 +68,7 @@ export async function runStrixLocal({
     cwd: repoLocalPath,
     detached: true,
     stdio: ["ignore", "pipe", "pipe"],
-    env: {
-      ...process.env,
-      PYTHONUNBUFFERED: "1",
-      PYTHONIOENCODING: "utf-8",
-    },
+    env: scanEnv,
   });
 
   const cancelInterval = setInterval(async () => {

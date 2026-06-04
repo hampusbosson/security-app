@@ -10,6 +10,7 @@ import {
   CheckCircle2,
   Clock3,
   Github,
+  KeyRound,
   LoaderCircle,
   LogOut,
   RefreshCw,
@@ -18,6 +19,13 @@ import {
 } from "lucide-react";
 
 const ACTIVE_SCAN_STATUSES = new Set(["PENDING", "RUNNING", "CANCELLED_REQUESTED"]);
+const DEFAULT_STRIX_LLM = "openai/gpt-5.4";
+const STRIX_LLM_OPTIONS = [
+  "openai/gpt-5.4",
+  "openai/gpt-4.1",
+  "anthropic/claude-sonnet-4-20250514",
+  "google/gemini-2.5-pro",
+] as const;
 
 const statusMeta: Record<
   Scan["status"],
@@ -89,6 +97,8 @@ const DashboardPage = () => {
   const [scanError, setScanError] = useState<string>("");
   const [syncingRepos, setSyncingRepos] = useState(false);
   const [actionPending, setActionPending] = useState(false);
+  const [strixLlm, setStrixLlm] = useState(DEFAULT_STRIX_LLM);
+  const [llmApiKey, setLlmApiKey] = useState("");
   const pollRef = useRef<number | null>(null);
 
   const selectedRepo = repos.find((repo) => repo.id === Number(selectedRepoId));
@@ -204,11 +214,19 @@ const DashboardPage = () => {
   const handleRunScan = async () => {
     if (!selectedRepo) return;
 
+    if (!llmApiKey.trim()) {
+      setScanError("Enter an API key before starting a scan.");
+      return;
+    }
+
     setActionPending(true);
     setScanError("");
 
     try {
-      const scan = await ScanAPI.runScan(selectedRepo.id);
+      const scan = await ScanAPI.runScan(selectedRepo.id, {
+        strixLlm,
+        llmApiKey: llmApiKey.trim(),
+      });
       setCurrentScan({
         ...scan,
         vulnerabilities: [],
@@ -300,6 +318,44 @@ const DashboardPage = () => {
                   <CardTitle>Repository</CardTitle>
                 </CardHeader>
                 <CardContent className="space-y-5">
+                  <div className="rounded-2xl border border-border/60 bg-background/80 p-4">
+                    <div className="mb-4 flex items-center gap-2 text-sm font-medium">
+                      <KeyRound className="h-4 w-4 text-primary" />
+                      Strix runtime credentials
+                    </div>
+                    <div className="grid gap-4">
+                      <div className="space-y-2">
+                        <label className="text-sm font-medium">LLM provider/model</label>
+                        <select
+                          value={strixLlm}
+                          onChange={(event) => setStrixLlm(event.target.value)}
+                          className="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm"
+                        >
+                          {STRIX_LLM_OPTIONS.map((option) => (
+                            <option key={option} value={option}>
+                              {option}
+                            </option>
+                          ))}
+                        </select>
+                      </div>
+                      <div className="space-y-2">
+                        <label className="text-sm font-medium">API key</label>
+                        <input
+                          type="password"
+                          value={llmApiKey}
+                          onChange={(event) => setLlmApiKey(event.target.value)}
+                          placeholder="Paste a supported provider API key"
+                          className="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm"
+                          autoComplete="off"
+                          spellCheck={false}
+                        />
+                        <p className="text-xs text-muted-foreground">
+                          Used only for the scan you start from this session. It is not saved in the database.
+                        </p>
+                      </div>
+                    </div>
+                  </div>
+
                   <div className="space-y-2">
                     <label className="text-sm font-medium">Choose repository</label>
                     <select

@@ -12,12 +12,15 @@ type RunStrixForRepoParams = {
   scanId: number;
   repositoryId: number;
   repoFullName: string;
+  strixLlm: string;
+  llmApiKey: string;
 };
 
 export async function runStrixForRepo(
   params: RunStrixForRepoParams
 ): Promise<StrixScanResult> {
   const { scanId, repoFullName } = params;
+  const { strixLlm, llmApiKey } = params;
 
   console.log(`[StrixRunner] Starting scan ${scanId} for repo ${repoFullName}`);
 
@@ -37,7 +40,7 @@ export async function runStrixForRepo(
     console.log(`[StrixRunner] Repo successfully cloned to: ${repoLocalPath}`);
 
     console.log(`[StrixRunner] Running Strix scan (non-interactive)...`);
-    return await runStrixLocal({ repoLocalPath, scanId });
+    return await runStrixLocal({ repoLocalPath, scanId, strixLlm, llmApiKey });
   } finally {
     console.log(`[StrixRunner] Cleaning up temp directory: ${tempDir}`);
     fs.rmSync(tempDir, { recursive: true, force: true });

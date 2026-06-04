@@ -3,11 +3,19 @@ import axios from "axios";
 import jwt from "jsonwebtoken";
 import { prisma } from "../lib/prisma";
 
-const loginUser = (_req: Request, res: Response) => {
+const loginUser = (req: Request, res: Response) => {
+  const redirectPath = String(req.query.redirect || "/dashboard");
+  const oauthState = jwt.sign(
+    { redirectPath },
+    process.env.JWT_SECRET!,
+    { expiresIn: "10m" }
+  );
+
   const params = new URLSearchParams({
     client_id: process.env.GITHUB_OAUTH_CLIENT_ID!,
     redirect_uri: process.env.GITHUB_OAUTH_CALLBACK!,
     scope: "read:user user:email",
+    state: oauthState,
   });
 
   console.log("Redirect uri: ", process.env.GITHUB_OAUTH_CALLBACK);
@@ -17,9 +25,24 @@ const loginUser = (_req: Request, res: Response) => {
 
 const authorizeUser = async (req: Request, res: Response) => {
   const code = req.query.code as string;
+  const state = req.query.state as string | undefined;
   if (!code) {
     res.status(400).send("No code provided");
     return;
+  }
+
+  let redirectPath = "/dashboard";
+  if (state) {
+    try {
+      const decoded = jwt.verify(state, process.env.JWT_SECRET!) as {
+        redirectPath?: string;
+      };
+      if (decoded.redirectPath?.startsWith("/")) {
+        redirectPath = decoded.redirectPath;
+      }
+    } catch {
+      console.warn("Invalid OAuth state, falling back to /dashboard");
+    }
   }
 
   try {
@@ -91,8 +114,11 @@ const authorizeUser = async (req: Request, res: Response) => {
     );
 
     // 5) Redirect user to frontend with JWT
+    const separator = redirectPath.includes("?") ? "&" : "?";
     return res.redirect(
-      `${process.env.FRONTEND_URL}/dashboard?token=${appToken}`
+      `${process.env.FRONTEND_URL}${redirectPath}${separator}token=${encodeURIComponent(
+        appToken
+      )}&redirect=${encodeURIComponent(redirectPath)}`
     );
 
   } catch (error) {

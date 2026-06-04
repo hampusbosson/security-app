@@ -32,12 +32,18 @@ const AuthProvider = ({ children }: AuthProviderProps) => {
     let isMounted = true;
 
     const initializeAuth = async () => {
+      const searchParams = new URLSearchParams(window.location.search);
       // Check if token was passed in URL by OAuth redirect
-      const urlToken = new URLSearchParams(window.location.search).get("token");
+      const urlToken = searchParams.get("token");
 
       if (urlToken) {
         localStorage.setItem("token", urlToken);
-        window.history.replaceState({}, "", "/dashboard");
+        const redirectPath =
+          searchParams.get("redirect") ||
+          sessionStorage.getItem("postAuthRedirect") || "/dashboard";
+        sessionStorage.removeItem("postAuthRedirect");
+        window.location.replace(redirectPath);
+        return;
       }
 
       // check for existing JWT

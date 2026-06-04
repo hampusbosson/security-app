@@ -11,8 +11,11 @@ export const ScanAPI = {
     return res.data.scan;
   },
 
-  runScan: async (repositoryId: number) => {
-    const res = await api.post(`/api/scan/run/${repositoryId}`);
+  runScan: async (
+    repositoryId: number,
+    payload: { strixLlm: string; llmApiKey: string }
+  ) => {
+    const res = await api.post(`/api/scan/run/${repositoryId}`, payload);
     return res.data.scan;
   },
 

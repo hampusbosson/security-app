@@ -4,6 +4,7 @@ import { paths } from "@/config/paths";
 import ProtectedRoute from "./routes/protected-route";
 import PublicRoute from "./routes/public-route";
 import LandingPage from "@/app/routes/landing";
+import DemoPage from "@/app/routes/demo";
 import DashboardPage from "@/app/routes/app/dashboard";
 import NotFoundPage from "@/app/routes/not-found";
 import SignupPage from "./routes/auth/signup";
@@ -18,6 +19,15 @@ const AppRouter: React.FC = () => {
             <PublicRoute>
               <LandingPage />
             </PublicRoute>
+          }
+        />
+
+        <Route
+          path={paths.demo.home.path}
+          element={
+            <ProtectedRoute>
+              <DemoPage />
+            </ProtectedRoute>
           }
         />
 

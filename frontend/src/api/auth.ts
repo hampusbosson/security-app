@@ -12,8 +12,11 @@ export const AuthAPI = {
     return res.data.user;
   },
 
-  loginUser: () => {
-    window.location.href = "http://localhost:4000/api/auth/login";
+  loginUser: (redirectPath = "/dashboard") => {
+    sessionStorage.setItem("postAuthRedirect", redirectPath);
+    window.location.href = `http://localhost:4000/api/auth/login?redirect=${encodeURIComponent(
+      redirectPath
+    )}`;
   },
 
   logoutUser: () => {

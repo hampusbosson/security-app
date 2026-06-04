@@ -23,10 +23,18 @@ const runScan = async (req: Request, res: Response) => {
   const { repositoryId } = req.params;
   const repoIdNum = Number(repositoryId);
   const userId = (req as any).authUser.userId;
+  const strixLlm = String(req.body?.strixLlm ?? "").trim();
+  const llmApiKey = String(req.body?.llmApiKey ?? "").trim();
 
   if (!repositoryId) {
     res.status(400).json({ error: "invalid repositoryID" });
     return;
+  }
+
+  if (!strixLlm || !llmApiKey) {
+    return res
+      .status(400)
+      .json({ error: "strixLlm and llmApiKey are required to run a scan" });
   }
 
   try {
@@ -52,6 +60,8 @@ const runScan = async (req: Request, res: Response) => {
       repoFullName: repo.fullName,
       githubCloneUrl: `https://github.com/${repo.fullName}.git`,
       userId,
+      strixLlm,
+      llmApiKey,
     });
 
     const updatedScan = await prisma.scan.update({

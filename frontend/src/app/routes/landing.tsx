@@ -11,24 +11,24 @@ const LandingPage = () => {
           <section className="space-y-8">
             <div className="inline-flex items-center gap-2 rounded-full border border-border/60 bg-card/70 px-4 py-2 text-sm text-muted-foreground">
               <Shield className="h-4 w-4 text-primary" />
-              Strix scan demo
+              GitHub security scanning
             </div>
             <div className="space-y-4">
               <h1 className="max-w-3xl text-5xl font-semibold tracking-tight">
-                Run a GitHub repository scan and review the findings in one place.
+                Run security scans on GitHub repositories and review findings in one place.
               </h1>
               <p className="max-w-2xl text-lg text-muted-foreground">
-                This demo is stripped down to the core workflow: connect GitHub,
-                select a repository, trigger Strix, and inspect the report and
-                vulnerabilities.
+                Connect your GitHub account, choose a repository, run a scan,
+                and inspect the validated findings and final report in a
+                focused security workspace.
               </p>
             </div>
             <div className="flex flex-wrap gap-3">
-              <Button size="lg" onClick={AuthAPI.loginUser}>
-                Continue with GitHub
+              <Button size="lg" onClick={() => AuthAPI.loginUser("/demo")}>
+                Get started
               </Button>
               <Button size="lg" variant="outline" asChild>
-                <Link to="/signup">Open login screen</Link>
+                <Link to="/signup">Sign in with GitHub</Link>
               </Button>
             </div>
           </section>
@@ -36,17 +36,16 @@ const LandingPage = () => {
           <section className="grid gap-4 rounded-3xl border border-border/60 bg-card/60 p-6 shadow-xl backdrop-blur">
             <div className="rounded-2xl border border-border/60 bg-background/80 p-5">
               <Search className="mb-3 h-5 w-5 text-primary" />
-              <h2 className="mb-1 text-lg font-medium">Run Strix</h2>
+              <h2 className="mb-1 text-lg font-medium">Run scan</h2>
               <p className="text-sm text-muted-foreground">
-                Trigger a real queued scan against a synced GitHub repository.
+                Start a repository scan and monitor progress from a dedicated workspace.
               </p>
             </div>
             <div className="rounded-2xl border border-border/60 bg-background/80 p-5">
               <FileWarning className="mb-3 h-5 w-5 text-primary" />
               <h2 className="mb-1 text-lg font-medium">Review findings</h2>
               <p className="text-sm text-muted-foreground">
-                See scan status, raw report text, severity counts, and each
-                vulnerability persisted by the backend.
+                Inspect severity, remediation guidance, and the final security report.
               </p>
             </div>
           </section>

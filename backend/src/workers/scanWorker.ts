@@ -6,7 +6,10 @@ import { handleScanJob } from "./handleScanJob";
 const worker = new Worker<ScanJobPayload>(
   QUEUE_NAMES.SCAN,
   async (job: Job) => {
-    console.log("Processing scan job:", job.data);
+    console.log("Processing scan job:", {
+      ...job.data,
+      llmApiKey: "[REDACTED]",
+    });
     await handleScanJob(job.data);
   },
   {
